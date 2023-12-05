@@ -1,0 +1,379 @@
+# This is a sample Python script.
+
+# Press ⌃R to execute it or replace it with your code.
+# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
+
+def solve1():
+    f = open("input1.txt", "r")
+    lines = f.readlines()
+
+    numSum = 0
+    lineCount = 0
+    for line in lines:
+        print(line)
+
+        foundFirst = False
+        firstDigit = '0'
+        lastDigit = '0'
+        lineLength = len(line) - 1
+        currPos = 0
+
+        while currPos != lineLength:
+            foundDigit = ''
+
+            if line[currPos] in ['1', '2', '3', '4', '5', '6', '7', '8', '9']:
+                foundDigit = line[currPos]
+            else:
+                next3 = line[currPos:currPos + 3]
+                if next3 == "one":
+                    foundDigit = '1'
+                elif next3 == "two":
+                    foundDigit = '2'
+                elif next3 == "six":
+                    foundDigit = '6'
+                else:
+                    next4 = line[currPos:currPos + 4]
+                    if next4 == "four":
+                        foundDigit = '4'
+                    elif next4 == "five":
+                        foundDigit = '5'
+                    elif next4 == "nine":
+                        foundDigit = '9'
+                    else:
+                        next5 = line[currPos:currPos + 5]
+                        if next5 == "three":
+                            foundDigit = '3'
+                        elif next5 == "seven":
+                            foundDigit = '7'
+                        elif next5 == "eight":
+                            foundDigit = '8'
+
+            if foundDigit != '':
+                if foundFirst:
+                    lastDigit = foundDigit
+                else:
+                    firstDigit = foundDigit
+                    lastDigit = foundDigit
+                    foundFirst = True
+
+            currPos += 1
+
+        num = int(firstDigit + lastDigit)
+        print(num)
+
+        numSum += num
+        lineCount += 1
+
+    print(numSum)
+    print(lineCount)
+
+def solve2():
+    f = open("input2.txt", "r")
+    lines = f.readlines()
+
+    possibleGames = []
+    powerSum = 0
+
+    for line in lines:
+        gameSplit = line.split(':')
+        gameNum = int(gameSplit[0][5:])
+        maxRed = 0
+        maxGreen = 0
+        maxBlue = 0
+
+        hands = gameSplit[1].split(';')
+        for hand in hands:
+            balls = hand.split(',')
+            for ball in balls:
+                ballSplit = ball.strip().split(' ')
+                ballNum = int(ballSplit[0])
+                ballType = ballSplit[1]
+                if ballType == "red":
+                    maxRed = max(maxRed, ballNum)
+                elif ballType == "green":
+                    maxGreen = max(maxGreen, ballNum)
+                else:
+                    maxBlue = max(maxBlue, ballNum)
+
+        print(line)
+        print(f"{gameNum}, {maxRed}, {maxGreen}, {maxBlue}")
+
+        if maxRed <= 12 and maxGreen <= 13 and maxBlue <= 14:
+            possibleGames.append(gameNum)
+
+        powerSum += maxRed * maxGreen * maxBlue
+
+    print(sum(possibleGames))
+    print(powerSum)
+
+def solve3():
+    f = open("input3.txt", "r")
+    lines = f.readlines()
+
+    field = []
+
+    for line in lines:
+        row = []
+
+        for char in line:
+            row.append(char)
+
+        field.append(row)
+
+    numbers = []
+    gears = {}
+
+    rowsCount = len(field)
+
+    for r in range(rowsCount):
+        foundNumber = False
+        numChars = ''
+        enabledNumber = False
+        rowLen = len(field[r])
+        possibleGear = False
+        gearPos = (0, 0)
+
+        for c in range(rowLen):
+            if field[r][c].isdigit():
+                foundNumber = True
+                numChars += field[r][c]
+
+                for i in range(-1, 2):
+                    for j in range(-1, 2):
+                        adjCharRow = min(max(r + i, 0), rowsCount - 1)
+                        adjCharCol = min(max(c + j, 0), rowLen - 1)
+                        adjChar = field[adjCharRow][adjCharCol]
+                        if adjChar != '.' and adjChar != '\n' and not adjChar.isdigit():
+                            enabledNumber = True
+
+                            if adjChar == '*':
+                                possibleGear = True
+                                gearPos = (adjCharRow, adjCharCol)
+
+            else:
+                if foundNumber:
+                    if enabledNumber:
+                        numbers.append(int(numChars))
+                        enabledNumber = False
+
+                        if possibleGear:
+                            if gearPos in gears:
+                                gears[gearPos].append(int(numChars))
+                            else:
+                                gears[gearPos] = [int(numChars)]
+                            possibleGear = False
+
+                    foundNumber = False
+                    numChars = ''
+
+    print(numbers)
+    print(sum(numbers))
+
+    gearRatioSum = 0
+
+    for pos, gear in gears.items():
+        if len(gear) == 2:
+            print(gear)
+
+            gearRatioSum += gear[0] * gear[1]
+
+    print(gearRatioSum)
+
+def solve4_1():
+    f = open("input4.txt", "r")
+    lines = f.readlines()
+
+    sum = 0
+
+    for line in lines:
+        print(line)
+
+        numbers = line.split(':')[1].split('|')
+        winingNums = [int(i) for i in numbers[0].strip().split(' ') if i != '']
+        myNums = [int(i) for i in numbers[1].strip().split(' ') if i != '']
+        winerNum = 0
+
+        for num in myNums:
+            if num in winingNums:
+                print(num)
+                winerNum += 1
+
+        if winerNum != 0:
+            sum += pow(2, winerNum - 1)
+
+    print(sum)
+
+class Card:
+    def __init__(self, winningNums, myNums):
+        self.winnerNum = 0
+
+        for num in myNums:
+            if num in winningNums:
+                self.winnerNum += 1
+
+    def __str__(self):
+        return f"{self.winnerNum}"
+
+
+def solve4_2():
+    f = open("input4.txt", "r")
+    lines = f.readlines()
+
+    cards = [Card([], [])]
+    myCards = []
+    lineNum = 0
+
+    for line in lines:
+        lineNum += 1
+
+        lineSplit = line.split(':')
+        numbers = lineSplit[1].split('|')
+        winningNums = [int(i) for i in numbers[0].strip().split(' ') if i != '']
+        myNums = [int(i) for i in numbers[1].strip().split(' ') if i != '']
+
+        cards.append(Card(winningNums, myNums))
+        myCards.append(lineNum)
+
+    for card in cards:
+        print(card)
+    print(len(cards))
+
+    i = 0
+    while i < len(myCards):
+        print(len(myCards))
+
+        currCard = myCards[i]
+        currWinnerNum = cards[currCard].winnerNum
+        if currWinnerNum != 0:
+            for j in range(currCard + 1, currCard + 1 + currWinnerNum):
+                myCards.append(j)
+
+        i += 1
+
+    print(len(myCards))
+
+class Range():
+    def __init__(self, start, end, length):
+        self.start = start
+        self.end = start + length - 1 if end == -1 else end
+
+    def __str__(self):
+        return f"{self.start},{self.end}"
+
+    def __lt__(self, other):
+        return self.start < other.start
+
+    def hasOverlap(self, other):
+        return ((self.start <= other.start and other.start <= self.end) or
+                (self.start <= other.end and other.end <= self.end))
+
+    def intersect(self, other):
+        if self.hasOverlap(other):
+            intersectStart = -1
+            intersectEnd = -1
+            remain1Start = -1
+            remain1End = -1
+            remain2Start = -1
+            remain2End = -1
+            if self.start <= other.start:
+                intersectStart = other.start
+            else:
+                intersectStart = self.start
+                remain1Start = other.start
+                remain1End = self.start - 1
+
+            if other.end <= self.end:
+                intersectEnd = other.end
+            else:
+                intersectEnd = self.end
+                remain2Start = self.end + 1
+                remain2End = other.end
+
+            return(Range(intersectStart, intersectEnd, -1),
+                   None if remain1Start == -1 else Range(remain1Start, remain1End, -1),
+                   None if remain2Start == -1 else Range(remain2Start, remain2End, -1))
+        else:
+            return (None, other, None)
+
+class Conversion:
+    def __init__(self, destRangeStart, sourceRangeStart, rangeLength):
+        self.sourceRange = Range(int(sourceRangeStart), -1, int(rangeLength))
+        self.conversionDif = int(destRangeStart) - int(sourceRangeStart)
+        self.rangeLength = int(rangeLength)
+
+    def __str__(self):
+        return(f"{self.sourceRange}({self.rangeLength})({self.conversionDif})")
+
+    def __lt__(self, other):
+        return self.sourceRange.start < other.sourceRange.start
+
+    def convert(self, source):
+        (intersection, prev, after) = self.sourceRange.intersect(source)
+
+        if intersection is not None:
+            intersection.start += self.conversionDif
+            intersection.end += self.conversionDif
+
+        return (intersection, prev, after)
+
+def solve5():
+    f = open("input5.txt", "r")
+    lines = f.readlines()
+
+    seeds = []
+    conversions = []
+
+    c = -1
+    for line in lines:
+        if line.startswith("seeds:"):
+            #seeds += [Range(int(s), -1, 1) for s in line[7:].strip().split(' ')]
+
+            seedsSplit = [int(s) for s in line[7:].strip().split(' ')]
+            for i in range(0, len(seedsSplit), 2):
+                seeds.append(Range(seedsSplit[i], -1, seedsSplit[i + 1]))
+        elif line.strip() in ["seed-to-soil map:", "soil-to-fertilizer map:", "fertilizer-to-water map:", "water-to-light map:", "light-to-temperature map:", "temperature-to-humidity map:", "humidity-to-location map:"]:
+            conversions.append([])
+            c += 1
+        elif line.startswith("\n"):
+            pass
+        else:
+            convParams = line.strip().split(' ')
+            conversions[c].append(Conversion(convParams[0], convParams[1], convParams[2]))
+
+    for typeConvs in conversions:
+        typeConvs.sort()
+        for conv in typeConvs:
+            print(conv)
+        print()
+
+    for seed in seeds:
+        print(seed)
+    print()
+
+    for typeConvs in conversions:
+        s = 0
+        while s < len(seeds):
+            for conv in typeConvs:
+                (intersection, prev, after) = conv.convert(seeds[s])
+
+                if intersection is not None:
+                    seeds[s] = intersection
+
+                    if prev is not None:
+                        seeds.append(prev)
+                    if after is not None:
+                        seeds.append(after)
+
+                    break
+
+            s += 1
+
+    seeds.sort()
+    for seed in seeds:
+        print(seed)
+
+# Press the green button in the gutter to run the script.
+if __name__ == '__main__':
+    solve5()
+
+# See PyCharm help at https://www.jetbrains.com/help/pycharm/
