@@ -372,8 +372,39 @@ def solve5():
     for seed in seeds:
         print(seed)
 
+def solve6():
+    times = [46, 80, 78, 66]
+    distances = [214, 1177, 1402, 1024]
+    res = 1
+
+    for i in range(4):
+        time = times[i]
+        winnerOptions = 0
+
+        for t in range(time):
+            dist = (time - t) * t
+            if distances[i] < dist:
+                winnerOptions += 1
+
+        res *= winnerOptions
+
+    print(res)
+
+def solve6_2():
+    time = 46807866
+    distance = 214117714021024
+
+    winnerOptions = 0
+
+    for t in range(time):
+        dist = (time - t) * t
+        if distance < dist:
+            winnerOptions += 1
+
+    print(winnerOptions)
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    solve5()
+    solve6_2()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
