@@ -403,7 +403,7 @@ def solve6_2():
 
     print(winnerOptions)
 
-orderOfCards = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']
+orderOfCards = ['J', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'Q', 'K', 'A']
 
 class Hand:
     def __init__(self, cards, bid):
@@ -412,8 +412,11 @@ class Hand:
 
         matchingCards = []
         matchingCardsNums = []
+        jokers = 0
         for i in range(len(cards)):
-            if not cards[i] in matchingCards:
+            if cards[i] == 'J':
+                jokers += 1
+            elif not cards[i] in matchingCards:
                 matchingCardsNum = 1
                 for j in range(len(cards)):
                     if i != j and cards[j] == cards[i]:
@@ -424,19 +427,46 @@ class Hand:
                     matchingCardsNums.append(matchingCardsNum)
 
         if len(matchingCards) == 0:
-            self.type = 1
+            if jokers == 0:
+                self.type = 1
+            elif jokers == 1:
+                self.type = 2
+            elif jokers == 2:
+                self.type = 4
+            elif jokers == 3:
+                self.type = 6
+            elif jokers == 4 or jokers == 5:
+                self.type = 7
         elif len(matchingCards) == 1:
             if matchingCardsNums[0] == 2:
-                self.type = 2
+                if jokers == 0:
+                    self.type = 2
+                elif jokers == 1:
+                    self.type = 4
+                elif jokers == 2:
+                    self.type = 6
+                elif jokers == 3:
+                    self.type = 7
             elif matchingCardsNums[0] == 3:
-                self.type = 4
+                if jokers == 0:
+                    self.type = 4
+                elif jokers == 1:
+                    self.type = 6
+                elif jokers == 2:
+                    self.type = 7
             elif matchingCardsNums[0] == 4:
-                self.type = 6
+                if jokers == 0:
+                    self.type = 6
+                elif jokers == 1:
+                    self.type = 7
             elif matchingCardsNums[0] == 5:
                 self.type = 7
         elif len(matchingCards) == 2:
             if matchingCardsNums[0] == 2 and matchingCardsNums[1] == 2:
-                self.type = 3
+                if jokers == 0:
+                    self.type = 3
+                elif jokers == 1:
+                    self.type = 5
             else:
                 self.type = 5
 
