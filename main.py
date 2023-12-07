@@ -403,8 +403,82 @@ def solve6_2():
 
     print(winnerOptions)
 
+orderOfCards = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']
+
+class Hand:
+    def __init__(self, cards, bid):
+        self.cards = cards
+        self.bid = bid
+
+        matchingCards = []
+        matchingCardsNums = []
+        for i in range(len(cards)):
+            if not cards[i] in matchingCards:
+                matchingCardsNum = 1
+                for j in range(len(cards)):
+                    if i != j and cards[j] == cards[i]:
+                        matchingCardsNum += 1
+
+                if 1 < matchingCardsNum:
+                    matchingCards.append(cards[i])
+                    matchingCardsNums.append(matchingCardsNum)
+
+        if len(matchingCards) == 0:
+            self.type = 1
+        elif len(matchingCards) == 1:
+            if matchingCardsNums[0] == 2:
+                self.type = 2
+            elif matchingCardsNums[0] == 3:
+                self.type = 4
+            elif matchingCardsNums[0] == 4:
+                self.type = 6
+            elif matchingCardsNums[0] == 5:
+                self.type = 7
+        elif len(matchingCards) == 2:
+            if matchingCardsNums[0] == 2 and matchingCardsNums[1] == 2:
+                self.type = 3
+            else:
+                self.type = 5
+
+    def __str__(self):
+        return f"{self.cards}({self.type})({self.bid})"
+
+    def __lt__(self, other):
+        if self.type == other.type:
+            for i in range(len(self.cards)):
+                orderofMyCard = orderOfCards.index(self.cards[i])
+                orderOfOthersCard = orderOfCards.index(other.cards[i])
+                if orderofMyCard == orderOfOthersCard:
+                    continue
+                else:
+                    return orderofMyCard < orderOfOthersCard
+
+            return False
+        else:
+            return self.type < other.type
+def solve7():
+    f = open("input7.txt", "r")
+    lines = f.readlines()
+
+    hands = []
+
+    for line in lines:
+        lineSplit = line.split(' ')
+        hands.append(Hand(lineSplit[0], int(lineSplit[1])))
+
+    hands.sort()
+
+    sumOfBids = 0
+
+    for i in range(len(hands)):
+        print(hands[i])
+
+        sumOfBids += hands[i].bid * (i + 1)
+
+    print(sumOfBids)
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    solve6_2()
+    solve7()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
