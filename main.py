@@ -507,8 +507,41 @@ def solve7():
 
     print(sumOfBids)
 
+def solve8():
+    f = open("input8.txt", "r")
+    lines = f.readlines()
+
+    currPlace = "AAA"
+    stepCount = 0
+    insts = lines[0].strip()
+    map = {}
+
+    for l in range(2, len(lines)):
+        splitLine = lines[l].strip().split('=')
+        splitLF = splitLine[1][2: -1].split(', ')
+        map[splitLine[0].strip()] = (splitLF[0], splitLF[1])
+
+    print(map)
+
+    while True:
+        for inst in insts:
+            if currPlace == "ZZZ":
+                break
+            else:
+                stepCount += 1
+                if inst == 'L':
+                    currPlace = map[currPlace][0]
+                elif inst == 'R':
+                    currPlace = map[currPlace][1]
+        else:
+            continue
+
+        break
+
+    print(stepCount)
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    solve7()
+    solve8()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
