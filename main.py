@@ -1,7 +1,4 @@
-# This is a sample Python script.
-
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
+from threading import Thread
 
 def solve1():
     f = open("input1.txt", "r")
@@ -507,11 +504,11 @@ def solve7():
 
     print(sumOfBids)
 
-def solve8():
+def solve8(start, end):
     f = open("input8.txt", "r")
     lines = f.readlines()
 
-    currPlace = "AAA"
+    currPlace = start
     stepCount = 0
     insts = lines[0].strip()
     map = {}
@@ -525,7 +522,7 @@ def solve8():
 
     while True:
         for inst in insts:
-            if currPlace == "ZZZ":
+            if stepCount != 0 and currPlace == end:
                 break
             else:
                 stepCount += 1
@@ -540,8 +537,114 @@ def solve8():
 
     print(stepCount)
 
+def navigate(places, placeNum, insts: str, map):
+
+    currPlace = places[placeNum][0]
+
+    stepCount = places[placeNum][1]
+    startStep = places[placeNum][1]
+
+    currInst = places[placeNum][2]
+    enabled = places[placeNum][3]
+
+    if not enabled:
+        return
+
+    while True:
+        if stepCount != startStep and currPlace[2] == 'Z':
+            places[placeNum] = (currPlace, stepCount, currInst, False)
+            break
+        else:
+            inst = insts[currInst]
+            if inst == 'L':
+                currPlace = map[currPlace][0]
+            elif inst == 'R':
+                currPlace = map[currPlace][1]
+
+            stepCount += 1
+            currInst += 1
+            if currInst == len(insts):
+                currInst = 0
+
+def solve8_2_bruteforce():
+    f = open("input8.txt", "r")
+    lines = f.readlines()
+
+    currPlaces = []
+    insts = lines[0].strip()
+    map = {}
+
+    for l in range(2, len(lines)):
+        splitLine = lines[l].strip().split('=')
+        splitLF = splitLine[1][2: -1].split(', ')
+        map[splitLine[0].strip()] = (splitLF[0], splitLF[1])
+
+    print(map)
+
+    for place in map.keys():
+        if place[-1] == 'A':
+            currPlaces.append((place, 0, 0, True))
+
+    print(currPlaces)
+
+    while True:
+        threads = []
+
+        for p in range(len(currPlaces)):
+            newThread = Thread(target=navigate, args=(currPlaces, p, insts, map))
+            newThread.start()
+            threads.append(newThread)
+
+        for thread in threads:
+            thread.join()
+
+        stepCounts = []
+        for currPlace in currPlaces:
+            stepCounts.append(currPlace[1])
+
+        stepCounts.sort()
+        highestStepCount = stepCounts[-1]
+        lowestStepCount = stepCounts[0]
+
+        isAllOnEnd = True
+        for p in range(len(currPlaces)):
+            if currPlaces[p][1] != highestStepCount:
+                isAllOnEnd = False
+
+            if currPlaces[p][1] == lowestStepCount:
+                currPlaces[p] = (currPlaces[p][0], currPlaces[p][1], currPlaces[p][2], True)
+
+        print(currPlaces)
+        print(highestStepCount)
+
+        if isAllOnEnd:
+            break
+
+def solve8_2():
+    f = open("input8.txt", "r")
+    lines = f.readlines()
+
+    starts = []
+    ends = []
+    insts = lines[0].strip()
+    map = {}
+
+    for l in range(2, len(lines)):
+        splitLine = lines[l].strip().split('=')
+        splitLF = splitLine[1][2: -1].split(', ')
+        map[splitLine[0].strip()] = (splitLF[0], splitLF[1])
+
+
+    for place in map.keys():
+        if place[-1] == 'A':
+            starts.append(place)
+
+    print(starts)
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    solve8()
+    solve8("BLA", "SLZ")
+    solve8_2()
+    #solve8_2_bruteforce()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

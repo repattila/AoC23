@@ -1,0 +1,22 @@
+[('QRZ', 1049041, 0, False), ('SLZ', 1048770, 0, False), ('ZZZ', 1039014, 0, True), ('XRZ', 1044434, 0, False), ('FDZ', 1048499, 0, False), ('HCZ', 1039285, 0, False)]
+1049041
+[('QRZ', 1049041, 0, False), ('SLZ', 1048770, 0, False), ('ZZZ', 1058255, 0, False), ('XRZ', 1044434, 0, False), ('FDZ', 1048499, 0, False), ('HCZ', 1039285, 0, True)]
+1058255
+[('QRZ', 1049041, 0, False), ('SLZ', 1048770, 0, False), ('ZZZ', 1058255, 0, False), ('XRZ', 1044434, 0, True), ('FDZ', 1048499, 0, False), ('HCZ', 1055274, 0, False)]
+1058255
+[('QRZ', 1049041, 0, False), ('SLZ', 1048770, 0, False), ('ZZZ', 1058255, 0, False), ('XRZ', 1057171, 0, False), ('FDZ', 1048499, 0, True), ('HCZ', 1055274, 0, False)]
+1058255
+
+BBA - QRZ 21409
+BLA - SLZ 11653
+AAA - ZZZ 19241
+
+QRZ - QRZ 21409
+SLZ - SLZ 11653
+ZZZ - ZZZ 19241
+XRZ - XRZ 12737
+FDZ - FDZ 14363
+HCZ - HCZ 15989
+
+least common multiple = 9606140307013
+
