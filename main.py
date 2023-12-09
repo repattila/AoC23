@@ -598,20 +598,17 @@ def solve8_2_bruteforce():
         for thread in threads:
             thread.join()
 
-        stepCounts = []
+        highestStepCount = currPlaces[0][1]
         for currPlace in currPlaces:
-            stepCounts.append(currPlace[1])
-
-        stepCounts.sort()
-        highestStepCount = stepCounts[-1]
-        lowestStepCount = stepCounts[0]
+            if highestStepCount < currPlace[1]:
+                highestStepCount = currPlace[1]
 
         isAllOnEnd = True
         for p in range(len(currPlaces)):
             if currPlaces[p][1] != highestStepCount:
                 isAllOnEnd = False
 
-            if currPlaces[p][1] == lowestStepCount:
+            if currPlaces[p][1] != highestStepCount:
                 currPlaces[p] = (currPlaces[p][0], currPlaces[p][1], currPlaces[p][2], True)
 
         print(currPlaces)
@@ -641,10 +638,52 @@ def solve8_2():
 
     print(starts)
 
+def getDiffSeries(series: list):
+    res = []
+    allZero = True
+    for i in range(len(series) - 1):
+        diff = series[i + 1] - series[i]
+        res.append(diff)
+
+        if diff != 0:
+            allZero = False
+
+    return (allZero, res)
+
+def solve9():
+    f = open("input9.txt", "r")
+    lines = f.readlines()
+
+    data = [[int(i) for i in l.strip().split(' ')] for l in lines]
+    sum = 0
+
+    for series in data:
+        diffs = []
+        base = series
+        while True:
+            diff = getDiffSeries(base)
+            diffs.append(diff[1])
+
+            if diff[0]:
+                break
+            else:
+                base = diff[1]
+
+        pred = 0
+        for d in range(len(diffs) - 2, -1, -1):
+            pred += diffs[d][-1]
+
+        sum += series[-1] + pred
+
+        print(diffs)
+        print(pred)
+
+    print(sum)
+
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    solve8("BLA", "SLZ")
-    solve8_2()
-    #solve8_2_bruteforce()
+
+    solve9()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
