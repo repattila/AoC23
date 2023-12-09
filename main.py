@@ -655,7 +655,8 @@ def solve9():
     lines = f.readlines()
 
     data = [[int(i) for i in l.strip().split(' ')] for l in lines]
-    sum = 0
+    sumPred = 0
+    sumBack = 0
 
     for series in data:
         diffs = []
@@ -673,12 +674,19 @@ def solve9():
         for d in range(len(diffs) - 2, -1, -1):
             pred += diffs[d][-1]
 
-        sum += series[-1] + pred
+        back = 0
+        for d in range(len(diffs) - 2, -1, -1):
+            back = diffs[d][0] - back
+
+        sumPred += series[-1] + pred
+        sumBack += series[0] - back
 
         print(diffs)
         print(pred)
+        print(back)
 
-    print(sum)
+    print(sumPred)
+    print(sumBack)
 
 
 # Press the green button in the gutter to run the script.
