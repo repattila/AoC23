@@ -694,7 +694,7 @@ def markOutside(field, row, col):
 
     val = field[row][col]
     if val == 0:
-        isOutside = False
+        field[row][col] = 3
 
         for i in range(-1, 2, 1):
             nextRow = row + i
@@ -703,24 +703,10 @@ def markOutside(field, row, col):
                     nextCol = col + j
                     if 0 <= nextCol and nextCol < rowLen:
                         if nextRow != row or nextCol != col:
-                            if field[nextRow][nextCol] == 2:
-                                isOutside = True
-                    else:
-                        isOutside = True
-                        break
-                else:
-                    continue
-
-                break
-            else:
-                isOutside = True
-                break
-
-        if isOutside:
-            field[row][col] = 2
+                            markOutside(field, nextRow, nextCol)
 
 def solve10():
-    f = open("input10.txt", "r")
+    f = open("example10.txt", "r")
     lines = f.readlines()
 
     startLine = 0
@@ -949,16 +935,16 @@ def solve10():
 
     print(stepCount)
 
-    for i in range(len(field) // 2):
-        for r in [i, len(field) - 1 - i]:
-            row = field[r]
-            for c in range(i, len(row) - i):
-                markOutside(field, r, c)
 
-        for r in range(i + 1, len(field) - 1 - i):
-            row = field[r]
-            for c in [i, len(row) - 1 - i]:
-                markOutside(field, r, c)
+    for r in [0, len(field) - 1]:
+        row = field[r]
+        for c in range(0, len(row)):
+            markOutside(field, r, c)
+
+    for r in range(1, len(field) - 1):
+        row = field[r]
+        for c in [0, len(row) - 1]:
+            markOutside(field, r, c)
 
     insideCount = 0
     for row in field:
@@ -970,10 +956,11 @@ def solve10():
 
     print(insideCount)
 
+import sys
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-
+    sys.setrecursionlimit(20000)
     solve10()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
