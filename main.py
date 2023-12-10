@@ -688,10 +688,233 @@ def solve9():
     print(sumPred)
     print(sumBack)
 
+def solve10():
+    f = open("input10.txt", "r")
+    lines = f.readlines()
+
+    startLine = 0
+    startCol = 0
+    linesLen = len(lines)
+    lineLen = 0
+
+    for l in range(linesLen):
+        line = lines[l]
+        lineLen = len(line) - 1
+        for c in range(lineLen):
+            if line[c] == 'S':
+                startLine = l
+                startCol = c
+
+    currLine = startLine
+    currCol = startCol
+    currElem = 'S'
+    prevLine = startLine
+    prevCol = startCol
+    stepCount = 0
+
+    while stepCount == 0 or currLine != startLine or currCol != startCol:
+        print(f"({currLine})({currCol}) {currElem}")
+        if currElem == 'S':
+            nextCol = currCol + 1
+            if nextCol != prevCol and nextCol < lineLen:
+                nextElem = lines[currLine][nextCol]
+                if nextElem in ['-', 'J', '7']:
+                    prevLine = currLine
+                    prevCol = currCol
+
+                    currCol = nextCol
+                    currElem = nextElem
+                    stepCount += 1
+                    continue
+
+            nextCol = currCol - 1
+            if nextCol != prevCol and 0 <= nextCol:
+                nextElem = lines[currLine][nextCol]
+                if nextElem in ['-', 'L', 'F']:
+                    prevLine = currLine
+                    prevCol = currCol
+
+                    currCol = nextCol
+                    currElem = nextElem
+                    stepCount += 1
+                    continue
+
+            nextLine = currLine + 1
+            if nextLine != prevLine and nextLine < linesLen:
+                nextElem = lines[nextLine][currCol]
+                if nextElem in ['|', 'J', 'L']:
+                    prevLine = currLine
+                    prevCol = currCol
+
+                    currLine = nextLine
+                    currElem = nextElem
+                    stepCount += 1
+                    continue
+
+            nextLine = currLine - 1
+            if nextLine != prevLine and 0 <= nextLine:
+                nextElem = lines[nextLine][currCol]
+                if nextElem in ['|', 'F', '7']:
+                    prevLine = currLine
+                    prevCol = currCol
+
+                    currLine = nextLine
+                    currElem = nextElem
+                    stepCount += 1
+                    continue
+        elif currElem == '|':
+            nextLine = currLine + 1
+            if nextLine != prevLine and nextLine < linesLen:
+                nextElem = lines[nextLine][currCol]
+                if nextElem in ['|', 'J', 'L', 'S']:
+                    prevLine = currLine
+                    prevCol = currCol
+
+                    currLine = nextLine
+                    currElem = nextElem
+                    stepCount += 1
+                    continue
+
+            nextLine = currLine - 1
+            if nextLine != prevLine and 0 <= nextLine:
+                nextElem = lines[nextLine][currCol]
+                if nextElem in ['|', 'F', '7', 'S']:
+                    prevLine = currLine
+                    prevCol = currCol
+
+                    currLine = nextLine
+                    currElem = nextElem
+                    stepCount += 1
+                    continue
+        elif currElem == '-':
+            nextCol = currCol + 1
+            if nextCol != prevCol and nextCol < lineLen:
+                nextElem = lines[currLine][nextCol]
+                if nextElem in ['-', 'J', '7', 'S']:
+                    prevLine = currLine
+                    prevCol = currCol
+
+                    currCol = nextCol
+                    currElem = nextElem
+                    stepCount += 1
+                    continue
+
+            nextCol = currCol - 1
+            if nextCol != prevCol and 0 <= nextCol:
+                nextElem = lines[currLine][nextCol]
+                if nextElem in ['-', 'L', 'F', 'S']:
+                    prevLine = currLine
+                    prevCol = currCol
+
+                    currCol = nextCol
+                    currElem = nextElem
+                    stepCount += 1
+                    continue
+        elif currElem == 'J':
+            nextLine = currLine - 1
+            if nextLine != prevLine and 0 <= nextLine:
+                nextElem = lines[nextLine][currCol]
+                if nextElem in ['|', 'F', '7', 'S']:
+                    prevLine = currLine
+                    prevCol = currCol
+
+                    currLine = nextLine
+                    currElem = nextElem
+                    stepCount += 1
+                    continue
+
+            nextCol = currCol - 1
+            if nextCol != prevCol and 0 <= nextCol:
+                nextElem = lines[currLine][nextCol]
+                if nextElem in ['-', 'L', 'F', 'S']:
+                    prevLine = currLine
+                    prevCol = currCol
+
+                    currCol = nextCol
+                    currElem = nextElem
+                    stepCount += 1
+                    continue
+        elif currElem == 'L':
+            nextLine = currLine - 1
+            if nextLine != prevLine and 0 <= nextLine:
+                nextElem = lines[nextLine][currCol]
+                if nextElem in ['|', 'F', '7', 'S']:
+                    prevLine = currLine
+                    prevCol = currCol
+
+                    currLine = nextLine
+                    currElem = nextElem
+                    stepCount += 1
+                    continue
+
+            nextCol = currCol + 1
+            if nextCol != prevCol and nextCol < lineLen:
+                nextElem = lines[currLine][nextCol]
+                if nextElem in ['-', 'J', '7', 'S']:
+                    prevLine = currLine
+                    prevCol = currCol
+
+                    currCol = nextCol
+                    currElem = nextElem
+                    stepCount += 1
+                    continue
+        elif currElem == 'F':
+            nextLine = currLine + 1
+            if nextLine != prevLine and nextLine < linesLen:
+                nextElem = lines[nextLine][currCol]
+                if nextElem in ['|', 'J', 'L', 'S']:
+                    prevLine = currLine
+                    prevCol = currCol
+
+                    currLine = nextLine
+                    currElem = nextElem
+                    stepCount += 1
+                    continue
+
+            nextCol = currCol + 1
+            if nextCol != prevCol and nextCol < lineLen:
+                nextElem = lines[currLine][nextCol]
+                if nextElem in ['-', 'J', '7', 'S']:
+                    prevLine = currLine
+                    prevCol = currCol
+
+                    currCol = nextCol
+                    currElem = nextElem
+                    stepCount += 1
+                    continue
+        elif currElem == '7':
+            nextLine = currLine + 1
+            if nextLine != prevLine and nextLine < linesLen:
+                nextElem = lines[nextLine][currCol]
+                if nextElem in ['|', 'J', 'L', 'S']:
+                    prevLine = currLine
+                    prevCol = currCol
+
+                    currLine = nextLine
+                    currElem = nextElem
+                    stepCount += 1
+                    continue
+
+            nextCol = currCol - 1
+            if nextCol != prevCol and 0 <= nextCol:
+                nextElem = lines[currLine][nextCol]
+                if nextElem in ['-', 'L', 'F', 'S']:
+                    prevLine = currLine
+                    prevCol = currCol
+
+                    currCol = nextCol
+                    currElem = nextElem
+                    stepCount += 1
+                    continue
+
+    print(stepCount)
+
+
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
 
-    solve9()
+    solve10()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
