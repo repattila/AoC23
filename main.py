@@ -688,6 +688,37 @@ def solve9():
     print(sumPred)
     print(sumBack)
 
+def markOutside(field, row, col):
+    fieldLen = len(field)
+    rowLen = len(field[row])
+
+    val = field[row][col]
+    if val == 0:
+        isOutside = False
+
+        for i in range(-1, 2, 1):
+            nextRow = row + i
+            if 0 <= nextRow and nextRow < fieldLen:
+                for j in range(-1, 2, 1):
+                    nextCol = col + j
+                    if 0 <= nextCol and nextCol < rowLen:
+                        if nextRow != row or nextCol != col:
+                            if field[nextRow][nextCol] == 2:
+                                isOutside = True
+                    else:
+                        isOutside = True
+                        break
+                else:
+                    continue
+
+                break
+            else:
+                isOutside = True
+                break
+
+        if isOutside:
+            field[row][col] = 2
+
 def solve10():
     f = open("input10.txt", "r")
     lines = f.readlines()
@@ -697,10 +728,17 @@ def solve10():
     linesLen = len(lines)
     lineLen = 0
 
+    field = []
+
     for l in range(linesLen):
         line = lines[l]
         lineLen = len(line) - 1
+        row = []
+        field.append(row)
+
         for c in range(lineLen):
+            row.append(0)
+
             if line[c] == 'S':
                 startLine = l
                 startCol = c
@@ -714,6 +752,8 @@ def solve10():
 
     while stepCount == 0 or currLine != startLine or currCol != startCol:
         print(f"({currLine})({currCol}) {currElem}")
+        field[currLine][currCol] = 1
+
         if currElem == 'S':
             nextCol = currCol + 1
             if nextCol != prevCol and nextCol < lineLen:
@@ -909,7 +949,26 @@ def solve10():
 
     print(stepCount)
 
+    for i in range(len(field) // 2):
+        for r in [i, len(field) - 1 - i]:
+            row = field[r]
+            for c in range(i, len(row) - i):
+                markOutside(field, r, c)
 
+        for r in range(i + 1, len(field) - 1 - i):
+            row = field[r]
+            for c in [i, len(row) - 1 - i]:
+                markOutside(field, r, c)
+
+    insideCount = 0
+    for row in field:
+        for col in row:
+            print(col, end='')
+            if col == 0:
+                insideCount += 1
+        print()
+
+    print(insideCount)
 
 
 # Press the green button in the gutter to run the script.
