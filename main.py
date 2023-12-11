@@ -706,7 +706,7 @@ def markOutside(field, row, col):
                             markOutside(field, nextRow, nextCol)
 
 def solve10():
-    f = open("example10.txt", "r")
+    f = open("input10.txt", "r")
     lines = f.readlines()
 
     startLine = 0
@@ -715,6 +715,7 @@ def solve10():
     lineLen = 0
 
     field = []
+    fieldSym = []
 
     for l in range(linesLen):
         line = lines[l]
@@ -722,8 +723,12 @@ def solve10():
         row = []
         field.append(row)
 
+        rowSym = []
+        fieldSym.append(rowSym)
+
         for c in range(lineLen):
             row.append(0)
+            rowSym.append('.')
 
             if line[c] == 'S':
                 startLine = l
@@ -739,6 +744,7 @@ def solve10():
     while stepCount == 0 or currLine != startLine or currCol != startCol:
         print(f"({currLine})({currCol}) {currElem}")
         field[currLine][currCol] = 1
+        fieldSym[currLine][currCol] = currElem
 
         if currElem == 'S':
             nextCol = currCol + 1
@@ -954,13 +960,98 @@ def solve10():
                 insideCount += 1
         print()
 
+    for row in fieldSym:
+        for col in row:
+            print(col, end='')
+            if col == 0:
+                insideCount += 1
+        print()
+
     print(insideCount)
+
+def solve11():
+    f = open("input11.txt", "r")
+    lines = f.readlines()
+
+    expandedRows = []
+
+    for r in range(len(lines)):
+        row = []
+        expandedRows.append(row)
+        addRow = []
+        isEmpty = True
+
+        for c in lines[r].strip():
+            row.append(c)
+            addRow.append('.')
+            if c != '.':
+                isEmpty = False
+
+        if isEmpty:
+            expandedRows.append(addRow)
+
+    for row in expandedRows:
+        print(row)
+
+    expandCols = []
+    for c in range(len(expandedRows[0])):
+        isEmpty = True
+        for row in expandedRows:
+            if row[c] != '.':
+                isEmpty = False
+                break
+
+        if isEmpty:
+            expandCols.append(c)
+
+    print(expandCols)
+
+    expandedCols = []
+
+    for row in expandedRows:
+        newRow = []
+        expandedCols.append(newRow)
+        for c in range(len(row)):
+            newRow.append(row[c])
+            if c in expandCols:
+                newRow.append('.')
+
+    galaxies = {}
+
+    galaxyNum = 0
+    for r in range(len(expandedCols)):
+        row = expandedCols[r]
+        print(row)
+        for c in range(len(row)):
+            if row[c] == '#':
+                galaxies[galaxyNum] = (r, c)
+                galaxyNum += 1
+
+    print(galaxies)
+
+    sumRanges = 0
+
+    keys = galaxies.keys()
+    for k in range(len(keys)):
+        for ok in range(k + 1, len(keys)):
+            print(f"{k} {ok}")
+            ran = abs(galaxies[ok][0] - galaxies[k][0]) + abs(galaxies[ok][1] - galaxies[k][1])
+            print(ran)
+            sumRanges += ran
+
+    print(sumRanges)
+
+
+
+
+
+
 
 import sys
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     sys.setrecursionlimit(20000)
-    solve10()
+    solve11()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
