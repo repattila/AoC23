@@ -973,30 +973,23 @@ def solve11():
     f = open("input11.txt", "r")
     lines = f.readlines()
 
-    expandedRows = []
-
+    expandRows = []
     for r in range(len(lines)):
-        row = []
-        expandedRows.append(row)
-        addRow = []
         isEmpty = True
-
-        for c in lines[r].strip():
-            row.append(c)
-            addRow.append('.')
-            if c != '.':
+        for col in lines[r].strip():
+            if col != '.':
                 isEmpty = False
+                break
 
         if isEmpty:
-            expandedRows.append(addRow)
+            expandRows.append(r)
 
-    for row in expandedRows:
-        print(row)
+    print(expandRows)
 
     expandCols = []
-    for c in range(len(expandedRows[0])):
+    for c in range(len(lines[0])):
         isEmpty = True
-        for row in expandedRows:
+        for row in lines:
             if row[c] != '.':
                 isEmpty = False
                 break
@@ -1006,22 +999,11 @@ def solve11():
 
     print(expandCols)
 
-    expandedCols = []
-
-    for row in expandedRows:
-        newRow = []
-        expandedCols.append(newRow)
-        for c in range(len(row)):
-            newRow.append(row[c])
-            if c in expandCols:
-                newRow.append('.')
-
     galaxies = {}
 
     galaxyNum = 0
-    for r in range(len(expandedCols)):
-        row = expandedCols[r]
-        print(row)
+    for r in range(len(lines)):
+        row = lines[r]
         for c in range(len(row)):
             if row[c] == '#':
                 galaxies[galaxyNum] = (r, c)
@@ -1034,9 +1016,28 @@ def solve11():
     keys = galaxies.keys()
     for k in range(len(keys)):
         for ok in range(k + 1, len(keys)):
-            print(f"{k} {ok}")
-            ran = abs(galaxies[ok][0] - galaxies[k][0]) + abs(galaxies[ok][1] - galaxies[k][1])
-            print(ran)
+            #print(f"{k} {ok}")
+
+            thisRow = galaxies[k][0]
+            thisCol = galaxies[k][1]
+            thatRow = galaxies[ok][0]
+            thatCol = galaxies[ok][1]
+            minRow = min(thisRow, thatRow)
+            maxRow = max(thisRow, thatRow)
+            minCol = min(thisCol, thatCol)
+            maxCol = max(thisCol, thatCol)
+            rowsBetween = 0
+            colsBetween = 0
+            for row in expandRows:
+                if minRow < row and row < maxRow:
+                    rowsBetween += 1
+
+            for col in expandCols:
+                if minCol < col and col < maxCol:
+                    colsBetween += 1
+
+            ran = abs(thatRow - thisRow) + abs(thatCol - thisCol) + (rowsBetween * (1000000 - 1)) + (colsBetween * (1000000 - 1))
+            # print(ran)
             sumRanges += ran
 
     print(sumRanges)
