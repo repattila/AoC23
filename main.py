@@ -688,49 +688,34 @@ def solve9():
     print(sumPred)
     print(sumBack)
 
-def markOutside(field, row, col):
-    fieldLen = len(field)
-    rowLen = len(field[row])
-
-    val = field[row][col]
-    if val == 0:
-        field[row][col] = 3
-
-        for i in range(-1, 2, 1):
-            nextRow = row + i
-            if 0 <= nextRow and nextRow < fieldLen:
-                for j in range(-1, 2, 1):
-                    nextCol = col + j
-                    if 0 <= nextCol and nextCol < rowLen:
-                        if nextRow != row or nextCol != col:
-                            markOutside(field, nextRow, nextCol)
-
 def solve10():
     f = open("input10.txt", "r")
-    lines = f.readlines()
+    rawLines = f.readlines()
 
     startLine = 0
     startCol = 0
-    linesLen = len(lines)
+    linesLen = len(rawLines)
     lineLen = 0
 
+    lines = []
     field = []
-    fieldSym = []
 
+    # Find S, prepare lines array and fill field array with all 0
     for l in range(linesLen):
-        line = lines[l]
-        lineLen = len(line) - 1
+        rawLine = rawLines[l]
+        lineLen = len(rawLine) - 1
+
+        line = []
+        lines.append(line)
+
         row = []
         field.append(row)
 
-        rowSym = []
-        fieldSym.append(rowSym)
-
         for c in range(lineLen):
+            line.append(rawLine[c])
             row.append(0)
-            rowSym.append('.')
 
-            if line[c] == 'S':
+            if rawLine[c] == 'S':
                 startLine = l
                 startCol = c
 
@@ -740,11 +725,13 @@ def solve10():
     prevLine = startLine
     prevCol = startCol
     stepCount = 0
+    firstDirAfterS = ''
+    lastDir = ''
 
+    # Navigate the pipe, mark pipe segments with 1 on field
     while stepCount == 0 or currLine != startLine or currCol != startCol:
         print(f"({currLine})({currCol}) {currElem}")
         field[currLine][currCol] = 1
-        fieldSym[currLine][currCol] = currElem
 
         if currElem == 'S':
             nextCol = currCol + 1
@@ -757,6 +744,7 @@ def solve10():
                     currCol = nextCol
                     currElem = nextElem
                     stepCount += 1
+                    firstDirAfterS = 'E'
                     continue
 
             nextCol = currCol - 1
@@ -769,6 +757,7 @@ def solve10():
                     currCol = nextCol
                     currElem = nextElem
                     stepCount += 1
+                    firstDirAfterS = 'W'
                     continue
 
             nextLine = currLine + 1
@@ -781,6 +770,7 @@ def solve10():
                     currLine = nextLine
                     currElem = nextElem
                     stepCount += 1
+                    firstDirAfterS = 'S'
                     continue
 
             nextLine = currLine - 1
@@ -793,6 +783,7 @@ def solve10():
                     currLine = nextLine
                     currElem = nextElem
                     stepCount += 1
+                    firstDirAfterS = 'N'
                     continue
         elif currElem == '|':
             nextLine = currLine + 1
@@ -805,6 +796,7 @@ def solve10():
                     currLine = nextLine
                     currElem = nextElem
                     stepCount += 1
+                    lastDir = 'S'
                     continue
 
             nextLine = currLine - 1
@@ -817,6 +809,7 @@ def solve10():
                     currLine = nextLine
                     currElem = nextElem
                     stepCount += 1
+                    lastDir = 'N'
                     continue
         elif currElem == '-':
             nextCol = currCol + 1
@@ -829,6 +822,7 @@ def solve10():
                     currCol = nextCol
                     currElem = nextElem
                     stepCount += 1
+                    lastDir = 'E'
                     continue
 
             nextCol = currCol - 1
@@ -841,6 +835,7 @@ def solve10():
                     currCol = nextCol
                     currElem = nextElem
                     stepCount += 1
+                    lastDir = 'W'
                     continue
         elif currElem == 'J':
             nextLine = currLine - 1
@@ -853,6 +848,7 @@ def solve10():
                     currLine = nextLine
                     currElem = nextElem
                     stepCount += 1
+                    lastDir = 'N'
                     continue
 
             nextCol = currCol - 1
@@ -865,6 +861,7 @@ def solve10():
                     currCol = nextCol
                     currElem = nextElem
                     stepCount += 1
+                    lastDir = 'W'
                     continue
         elif currElem == 'L':
             nextLine = currLine - 1
@@ -877,6 +874,7 @@ def solve10():
                     currLine = nextLine
                     currElem = nextElem
                     stepCount += 1
+                    lastDir = 'N'
                     continue
 
             nextCol = currCol + 1
@@ -889,6 +887,7 @@ def solve10():
                     currCol = nextCol
                     currElem = nextElem
                     stepCount += 1
+                    lastDir = 'E'
                     continue
         elif currElem == 'F':
             nextLine = currLine + 1
@@ -901,6 +900,7 @@ def solve10():
                     currLine = nextLine
                     currElem = nextElem
                     stepCount += 1
+                    lastDir = 'S'
                     continue
 
             nextCol = currCol + 1
@@ -913,6 +913,7 @@ def solve10():
                     currCol = nextCol
                     currElem = nextElem
                     stepCount += 1
+                    lastDir = 'E'
                     continue
         elif currElem == '7':
             nextLine = currLine + 1
@@ -925,6 +926,7 @@ def solve10():
                     currLine = nextLine
                     currElem = nextElem
                     stepCount += 1
+                    lastDir = 'S'
                     continue
 
             nextCol = currCol - 1
@@ -937,33 +939,53 @@ def solve10():
                     currCol = nextCol
                     currElem = nextElem
                     stepCount += 1
+                    lastDir = 'W'
                     continue
 
     print(stepCount)
 
+    # Replace S with actual element
+    if (firstDirAfterS == 'N' and lastDir == 'N') or (firstDirAfterS == 'S' and lastDir == 'S'):
+        lines[startLine][startCol] = '|'
+    elif (firstDirAfterS == 'E' and lastDir == 'E') or (firstDirAfterS == 'W' and lastDir == 'W'):
+        lines[startLine][startCol] = '-'
+    elif (firstDirAfterS == 'N' and lastDir == 'E') or (firstDirAfterS == 'W' and lastDir == 'S'):
+        lines[startLine][startCol] = 'J'
+    elif (firstDirAfterS == 'N' and lastDir == 'W') or (firstDirAfterS == 'E' and lastDir == 'S'):
+        lines[startLine][startCol] = 'L'
+    elif (firstDirAfterS == 'S' and lastDir == 'E') or (firstDirAfterS == 'W' and lastDir == 'N'):
+        lines[startLine][startCol] = '7'
+    elif (firstDirAfterS == 'S' and lastDir == 'W') or (firstDirAfterS == 'E' and lastDir == 'N'):
+        lines[startLine][startCol] = 'F'
 
-    for r in [0, len(field) - 1]:
+    # Check in or out
+    for r in range(len(field)):
+        prevBend = ''
+        crossCount = 0
         row = field[r]
-        for c in range(0, len(row)):
-            markOutside(field, r, c)
+        for c in range(len(row)):
+            if row[c] == 0:
+                if crossCount % 2 == 1:
+                    row[c] = 2
+            elif row[c] == 1:
+                currElem = lines[r][c]
+                if currElem in ['|', 'L', 'F']:
+                    crossCount += 1
+                elif currElem == '7':
+                    if not prevBend in ['L']:
+                        crossCount += 1
+                elif currElem == 'J':
+                    if not prevBend in ['F']:
+                        crossCount += 1
 
-    for r in range(1, len(field) - 1):
-        row = field[r]
-        for c in [0, len(row) - 1]:
-            markOutside(field, r, c)
+                if currElem in ['L', 'F', '7', 'J']:
+                    prevBend = currElem
 
     insideCount = 0
     for row in field:
         for col in row:
             print(col, end='')
-            if col == 0:
-                insideCount += 1
-        print()
-
-    for row in fieldSym:
-        for col in row:
-            print(col, end='')
-            if col == 0:
+            if col == 2:
                 insideCount += 1
         print()
 
@@ -1043,16 +1065,11 @@ def solve11():
     print(sumRanges)
 
 
-
-
-
-
-
 import sys
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     sys.setrecursionlimit(20000)
-    solve11()
+    solve10()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
