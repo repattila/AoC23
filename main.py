@@ -1064,12 +1064,80 @@ def solve11():
 
     print(sumRanges)
 
+# https://mathoverflow.net/questions/9477/uniquely-generate-all-permutations-of-three-digits-that-sum-to-a-particular-valu
+def multichoose(n,k):
+    if k < 0 or n < 0: return "Error"
+    if not k: return [[0]*n]
+    if not n: return []
+    if n == 1: return [[k]]
+    return [[0]+val for val in multichoose(n-1,k)] + \
+        [[val[0]+1]+val[1:] for val in multichoose(n,k-1)]
+
+def solve12():
+    f = open("input12.txt", "r")
+    rawLines = f.readlines()
+
+    lines = []
+    checkSums = []
+
+    for rawLine in rawLines:
+        splitLine = rawLine.strip().split(' ')
+        lines.append(splitLine[0])
+        checkSums.append([int(c) for c in splitLine[1].split(',')])
+
+    print(lines)
+    print(checkSums)
+
+    fittingArrangementsCounts = []
+
+    for i in range(len(lines)):
+        currLine = lines[i]
+        currCheckSum = checkSums[i]
+
+        # Generate possible lengths of spaces
+
+        spaceCount = len(currCheckSum) + 1
+        spaceSum = len(currLine) - (sum(currCheckSum) + (len(currCheckSum) - 1))
+
+        arrangements = multichoose(spaceCount, spaceSum)
+
+        print(arrangements)
+
+        # Check each arrangement if it fits the line
+        fittingArrangementsCount = 0
+        for arrangement in arrangements:
+            arrLen = len(arrangement)
+            lineOption = []
+            for a in range(arrLen):
+                lineOption += ['.' for _ in range(arrangement[a])]
+
+                if a != arrLen - 1:
+                    lineOption += ['#' for _ in range(currCheckSum[a])]
+                    if a != arrLen - 2:
+                        lineOption.append('.')
+
+            print(lineOption)
+
+            optionFitsActual = True
+            for l in range(len(currLine)):
+                if currLine[l] != '?':
+                    if currLine[l] != lineOption[l]:
+                        optionFitsActual = False
+                        break
+
+            if optionFitsActual:
+                fittingArrangementsCount += 1
+
+        fittingArrangementsCounts.append(fittingArrangementsCount)
+
+    print(sum(fittingArrangementsCounts))
+
 
 import sys
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     sys.setrecursionlimit(20000)
-    solve10()
+    solve12()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
