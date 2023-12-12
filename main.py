@@ -1073,7 +1073,7 @@ def multichoose(n,k):
     return [[0]+val for val in multichoose(n-1,k)] + \
         [[val[0]+1]+val[1:] for val in multichoose(n,k-1)]
 
-def solve12():
+def solve12_bruteforce():
     f = open("input12.txt", "r")
     rawLines = f.readlines()
 
@@ -1132,12 +1132,148 @@ def solve12():
 
     print(sum(fittingArrangementsCounts))
 
+def getArrangements(allFields, numOfActive):
+    if allFields == numOfActive:
+        return [[1 for _ in range(allFields)]]
+
+    if numOfActive == 0:
+        return [[0 for _ in range(allFields)]]
+
+    return [[1] + res for res in getArrangements(allFields - 1, numOfActive - 1)] + [[0] + res for res in getArrangements(allFields - 1, numOfActive)]
+
+def solve12():
+    f = open("input12.txt", "r")
+    rawLines = f.readlines()
+
+    lines = []
+    checkSums = []
+
+    for rawLine in rawLines:
+        splitLine = rawLine.strip().split(' ')
+        lines.append(splitLine[0])
+        checkSums.append([int(c) for c in splitLine[1].split(',')])
+
+    print(lines)
+    print(checkSums)
+
+    sumValidArrangaments = 0
+
+    for l in range(len(lines)):
+        currLine = lines[l]
+        currCheckSum = checkSums[l]
+
+        sumHash = 0
+        sumWildcard = 0
+        for ch in currLine:
+            if ch == '#':
+                sumHash += 1
+            if ch == '?':
+                sumWildcard += 1
+
+        arrangements = getArrangements(sumWildcard, sum(currCheckSum) - sumHash)
+
+        validArrangamentsCount = 0
+        for arrangement in arrangements:
+            lineOption = []
+            wildcardNum = 0
+            for ch in currLine:
+                if ch == '?':
+                    if arrangement[wildcardNum] == 1:
+                        lineOption.append('#')
+                    else:
+                        lineOption.append('.')
+
+                    wildcardNum += 1
+                else:
+                    lineOption.append(ch)
+
+            print(lineOption)
+
+            contHashNum = -1
+            inContHash = False
+            contHashLen = 0
+            for ch in lineOption:
+                if ch == '#':
+                    if not inContHash:
+                        inContHash = True
+                        contHashNum += 1
+
+                    contHashLen += 1
+                else:
+                    if inContHash:
+                        if len(currCheckSum) <= contHashNum or currCheckSum[contHashNum] != contHashLen:
+                            break
+
+                        inContHash = False
+                        contHashLen = 0
+            else:
+                if inContHash:
+                    if len(currCheckSum) <= contHashNum or currCheckSum[contHashNum] != contHashLen:
+                        pass
+                    else:
+                        validArrangamentsCount += 1
+                else:
+                    validArrangamentsCount += 1
+
+        print(validArrangamentsCount)
+        print()
+
+        sumValidArrangaments += validArrangamentsCount
+
+    print(sumValidArrangaments)
+
+def solve12_2():
+    f = open("input12.txt", "r")
+    rawLines = f.readlines()
+
+    lines = []
+    checkSums = []
+
+    for rawLine in rawLines:
+        splitRawLine = rawLine.strip().split(' ')
+
+        line = splitRawLine[0]
+        for _ in range(4):
+            line += '?' + splitRawLine[0]
+        lines.append(line)
+
+        checkSum = [int(c) for c in splitRawLine[1].split(',')]
+        unfoldedCheckSum = []
+        for _ in range(5):
+            unfoldedCheckSum += checkSum
+        checkSums.append(unfoldedCheckSum)
+
+    print(lines)
+    print(checkSums)
+
+    sumValidArrangaments = 0
+
+    for l in range(len(lines)):
+        currLine = lines[l]
+        currCheckSum = checkSums[l]
+
+        sumHash = 0
+        sumWildcard = 0
+        for ch in currLine:
+            if ch == '#':
+                sumHash += 1
+            if ch == '?':
+                sumWildcard += 1
+
+        print(sumWildcard)
+        print(sum(currCheckSum) - sumHash)
+
+    arrangements = getArrangements(40, 5)
+
+    print(len(arrangements))
+
+    print()
 
 import sys
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     sys.setrecursionlimit(20000)
-    solve12()
+    solve12_2()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
