@@ -1269,11 +1269,83 @@ def solve12_2():
 
     print()
 
+def checkMirror(pattern):
+    mirrorRow = 0
+    longestMirrorLength = 0
+
+    for mR in range(1, len(pattern)):
+        isMirror = True
+        mirrorLength = 0
+        for checkR in range(mR, len(pattern)):
+            mirrorLength = checkR - mR
+            mirroredRowNum = mR - 1 - mirrorLength
+            if 0 <= mirroredRowNum:
+                if pattern[checkR] != pattern[mirroredRowNum]:
+                    isMirror = False
+                    break
+            else:
+                break
+
+        if isMirror and longestMirrorLength <= mirrorLength:
+            mirrorRow = mR
+            longestMirrorLength = mirrorLength
+
+    return mirrorRow
+
+def transposePattern(pattern):
+    transposedPattern = []
+    for c in range(len(pattern[0])):
+        newRow = ""
+        for row in pattern:
+            newRow += row[c]
+
+        transposedPattern.append(newRow)
+
+    return transposedPattern
+
+def solve13():
+    f = open("input13.txt", "r")
+    rawLines = f.readlines()
+
+    patterns = []
+    newPattern = []
+
+    for rawLine in rawLines:
+        if len(rawLine) == 1:
+            patterns.append(newPattern)
+            newPattern = []
+        else:
+            newPattern.append([c for c in rawLine.strip()])
+
+    print(len(patterns))
+    print(patterns)
+
+    sum = 0
+    for pattern in patterns:
+        mirrorRow = checkMirror(pattern)
+        mirrorCol = 0
+
+        print(mirrorRow)
+
+        if mirrorRow == 0:
+            transposedPattern = transposePattern(pattern)
+
+            #print(transposedPattern)
+
+            mirrorCol = checkMirror(transposedPattern)
+
+        print(mirrorCol)
+
+        sum += 100 * mirrorRow
+        sum += mirrorCol
+
+    print(sum)
+
 import sys
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     sys.setrecursionlimit(20000)
-    solve12_2()
+    solve13()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
