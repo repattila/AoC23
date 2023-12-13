@@ -1270,8 +1270,8 @@ def solve12_2():
     print()
 
 def checkMirror(pattern):
-    mirrorRow = 0
-    longestMirrorLength = 0
+    mirrorRows = []
+    #longestMirrorLength = 0
 
     for mR in range(1, len(pattern)):
         isMirror = True
@@ -1286,11 +1286,12 @@ def checkMirror(pattern):
             else:
                 break
 
-        if isMirror and longestMirrorLength <= mirrorLength:
-            mirrorRow = mR
-            longestMirrorLength = mirrorLength
+        #if isMirror and longestMirrorLength <= mirrorLength:
+        if isMirror:
+            mirrorRows.append(mR)
+            #longestMirrorLength = mirrorLength
 
-    return mirrorRow
+    return mirrorRows
 
 def transposePattern(pattern):
     transposedPattern = []
@@ -1322,7 +1323,8 @@ def solve13():
 
     sum = 0
     for pattern in patterns:
-        mirrorRow = checkMirror(pattern)
+        mirrorRows = checkMirror(pattern)
+        mirrorRow = mirrorRows[0] if len(mirrorRows) != 0 else 0
         mirrorCol = 0
 
         print(mirrorRow)
@@ -1332,12 +1334,65 @@ def solve13():
 
             #print(transposedPattern)
 
-            mirrorCol = checkMirror(transposedPattern)
+            mirrorCols = checkMirror(transposedPattern)
+            mirrorCol = mirrorCols[0] if len(mirrorCols) != 0 else 0
 
         print(mirrorCol)
 
+        # Part 2
+        for l in range(len(pattern)):
+            line = pattern[l]
+            for c in range(len(line)):
+                prevVal = line[c]
+                if line[c] == '.':
+                    line[c] = '#'
+                else:
+                    line[c] = '.'
+
+                altMirrorRow = 0
+                for newMirrorRow in checkMirror(pattern):
+                    if newMirrorRow != mirrorRow:
+                        altMirrorRow = newMirrorRow
+
+                altMirrorCol = 0
+
+                if altMirrorRow == 0:
+                    transposedPattern = transposePattern(pattern)
+
+                    # print(transposedPattern)
+
+                    for newMirrorCol in checkMirror(transposedPattern):
+                        if newMirrorCol != mirrorCol:
+                            altMirrorCol = newMirrorCol
+
+                if altMirrorRow != 0:
+                    mirrorRow = altMirrorRow
+                    mirrorCol = 0
+
+                    print(f"{l} {c}")
+                    print(mirrorRow)
+                    print(mirrorCol)
+                    break
+
+                if altMirrorCol != 0:
+                    mirrorRow = 0
+                    mirrorCol = altMirrorCol
+
+                    print(f"{l} {c}")
+                    print(mirrorRow)
+                    print(mirrorCol)
+                    break
+
+                line[c] = prevVal
+            else:
+                continue
+
+            break
+
         sum += 100 * mirrorRow
         sum += mirrorCol
+
+        print()
 
     print(sum)
 
