@@ -1170,7 +1170,12 @@ def solve12():
             if ch == '?':
                 sumWildcard += 1
 
-        arrangements = getArrangements(sumWildcard, sum(currCheckSum) - sumHash)
+        print(sumWildcard)
+
+        missingHashCount = sum(currCheckSum) - sumHash
+        print(missingHashCount)
+
+        arrangements = getArrangements(sumWildcard, missingHashCount)
 
         validArrangamentsCount = 0
         for arrangement in arrangements:
@@ -1187,7 +1192,7 @@ def solve12():
                 else:
                     lineOption.append(ch)
 
-            print(lineOption)
+            #print(lineOption)
 
             contHashNum = -1
             inContHash = False
@@ -1223,7 +1228,7 @@ def solve12():
     print(sumValidArrangaments)
 
 def solve12_2():
-    f = open("input12.txt", "r")
+    f = open("example12.txt", "r")
     rawLines = f.readlines()
 
     lines = []
@@ -1261,13 +1266,61 @@ def solve12_2():
                 sumWildcard += 1
 
         print(sumWildcard)
-        print(sum(currCheckSum) - sumHash)
 
-    arrangements = getArrangements(40, 5)
+        missingHashCount = sum(currCheckSum) - sumHash
+        print(missingHashCount)
 
-    print(len(arrangements))
+        arrangements = getArrangements(sumWildcard, sum(currCheckSum) - sumHash)
 
-    print()
+        validArrangamentsCount = 0
+        for arrangement in arrangements:
+            lineOption = []
+            wildcardNum = 0
+            for ch in currLine:
+                if ch == '?':
+                    if arrangement[wildcardNum] == 1:
+                        lineOption.append('#')
+                    else:
+                        lineOption.append('.')
+
+                    wildcardNum += 1
+                else:
+                    lineOption.append(ch)
+
+            #print(lineOption)
+
+            contHashNum = -1
+            inContHash = False
+            contHashLen = 0
+            for ch in lineOption:
+                if ch == '#':
+                    if not inContHash:
+                        inContHash = True
+                        contHashNum += 1
+
+                    contHashLen += 1
+                else:
+                    if inContHash:
+                        if len(currCheckSum) <= contHashNum or currCheckSum[contHashNum] != contHashLen:
+                            break
+
+                        inContHash = False
+                        contHashLen = 0
+            else:
+                if inContHash:
+                    if len(currCheckSum) <= contHashNum or currCheckSum[contHashNum] != contHashLen:
+                        pass
+                    else:
+                        validArrangamentsCount += 1
+                else:
+                    validArrangamentsCount += 1
+
+        print(validArrangamentsCount)
+        print()
+
+        sumValidArrangaments += validArrangamentsCount
+
+    print(sumValidArrangaments)
 
 def checkMirror(pattern):
     mirrorRows = []
@@ -1396,11 +1449,54 @@ def solve13():
 
     print(sum)
 
+def moveRock(field, row, col):
+    prevRow = row
+    for nextRow in range(row - 1, -1, -1):
+        if field[nextRow][col] in ['#', 'O']:
+            break
+        else:
+            field[nextRow][col] = 'O'
+            field[prevRow][col] = '.'
+            prevRow = nextRow
+
+def solve14():
+    f = open("input14.txt", "r")
+    rawLines = f.readlines()
+
+    field = []
+
+    for rawLine in rawLines:
+        row = []
+        field.append(row)
+        for char in rawLine.strip():
+            row.append(char)
+
+    print(field)
+
+    for r in range(1, len(field)):
+        row = field[r]
+        for c in range(len(row)):
+            if row[c] == 'O':
+                moveRock(field, r, c)
+
+    sumWeight = 0
+    fieldLen = len(field)
+    for r in range(0, fieldLen):
+        row = field[r]
+        print(row)
+
+        for char in row:
+            if char == 'O':
+                sumWeight += (fieldLen - r)
+
+    print(sumWeight)
+
+
 import sys
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     sys.setrecursionlimit(20000)
-    solve13()
+    solve14()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
