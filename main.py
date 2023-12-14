@@ -1449,7 +1449,7 @@ def solve13():
 
     print(sum)
 
-def moveRock(field, row, col):
+def moveRockNorth(field, row, col):
     prevRow = row
     for nextRow in range(row - 1, -1, -1):
         if field[nextRow][col] in ['#', 'O']:
@@ -1458,6 +1458,36 @@ def moveRock(field, row, col):
             field[nextRow][col] = 'O'
             field[prevRow][col] = '.'
             prevRow = nextRow
+
+def moveRockSouth(field, row, col):
+    prevRow = row
+    for nextRow in range(row + 1, len(field)):
+        if field[nextRow][col] in ['#', 'O']:
+            break
+        else:
+            field[nextRow][col] = 'O'
+            field[prevRow][col] = '.'
+            prevRow = nextRow
+
+def moveRockWest(field, row, col):
+    prevCol = col
+    for nextCol in range(col - 1, -1, -1):
+        if field[row][nextCol] in ['#', 'O']:
+            break
+        else:
+            field[row][nextCol] = 'O'
+            field[row][prevCol] = '.'
+            prevCol = nextCol
+
+def moveRockEast(field, row, col):
+    prevCol = col
+    for nextCol in range(col + 1, len(field[row])):
+        if field[row][nextCol] in ['#', 'O']:
+            break
+        else:
+            field[row][nextCol] = 'O'
+            field[row][prevCol] = '.'
+            prevCol = nextCol
 
 def solve14():
     f = open("input14.txt", "r")
@@ -1473,11 +1503,34 @@ def solve14():
 
     print(field)
 
-    for r in range(1, len(field)):
-        row = field[r]
-        for c in range(len(row)):
-            if row[c] == 'O':
-                moveRock(field, r, c)
+    for _ in range(1000):
+        # Move rocks north
+        for r in range(1, len(field)):
+            row = field[r]
+            for c in range(len(row)):
+                if row[c] == 'O':
+                    moveRockNorth(field, r, c)
+
+        # Move rocks west
+        for r in range(len(field)):
+            row = field[r]
+            for c in range(1, len(row)):
+                if row[c] == 'O':
+                    moveRockWest(field, r, c)
+
+        # Move rocks south
+        for r in range(len(field) - 2, -1, -1):
+            row = field[r]
+            for c in range(len(row)):
+                if row[c] == 'O':
+                    moveRockSouth(field, r, c)
+
+        # Move rocks east
+        for r in range(len(field)):
+            row = field[r]
+            for c in range(len(row) - 2, -1, -1):
+                if row[c] == 'O':
+                    moveRockEast(field, r, c)
 
     sumWeight = 0
     fieldLen = len(field)
