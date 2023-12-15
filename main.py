@@ -1150,23 +1150,11 @@ def solve12():
 
     for rawLine in rawLines:
         splitLine = rawLine.strip().split(' ')
-        lines.append([ch for ch in splitLine[0]])
+        lines.append(splitLine[0])
         checkSums.append([int(c) for c in splitLine[1].split(',')])
 
     print(lines)
     print(checkSums)
-
-    for l in range(len(lines)):
-        currLine = lines[l]
-        currCheckSum = checkSums[l]
-
-        currCharNum = 0
-        for check in currCheckSum:
-            '*#.*#.*###*'
-
-            '???.###'
-
-
 
     sumValidArrangaments = 0
     for l in range(len(lines)):
@@ -1238,8 +1226,70 @@ def solve12():
 
     print(sumValidArrangaments)
 
+import re
+
+def findOptions(line, alreadyMatched, matchPos, pattern, optionCount):
+    if len(line) <= matchPos:
+        return optionCount
+    else:
+        if line[matchPos] == '?':
+            restOfLine = line[matchPos + 1:]
+            option1 = alreadyMatched + '.'
+            option2 = alreadyMatched + '#'
+            option1Count = 0
+            option2Count = 0
+
+            if pattern.fullmatch(option1 + restOfLine):
+                option1Count = findOptions(line, option1, matchPos + 1, pattern, 1)
+
+            if pattern.fullmatch(option2 + restOfLine):
+                option2Count = findOptions(line, option2, matchPos + 1, pattern, 1)
+
+            return option1Count + option2Count
+        else:
+            return findOptions(line, alreadyMatched + line[matchPos], matchPos + 1, pattern, optionCount)
+
+
+def solve12_alt():
+    f = open("input12.txt", "r")
+    rawLines = f.readlines()
+
+    lines = []
+    checkSums = []
+
+    for rawLine in rawLines:
+        splitLine = rawLine.strip().split(' ')
+        lines.append(splitLine[0])
+        checkSums.append([int(c) for c in splitLine[1].split(',')])
+
+    print(lines)
+    print(checkSums)
+
+    sum = 0
+
+    for l in range(len(lines)):
+        currLine = lines[l]
+        currCheckSum = checkSums[l]
+
+        pattern = "^[\\.\\?]*"
+        for c in range(len(currCheckSum) - 1):
+            pattern += '[#\\?]{' + str(currCheckSum[c]) + '}[\\.\\?]+'
+
+        pattern += '[#\\?]{' + str(currCheckSum[-1]) + '}[\\.\\?]*$'
+
+        print(pattern)
+
+        p = re.compile(pattern)
+
+        optionsCount = findOptions(currLine, "", 0, p, 0)
+        print(optionsCount)
+
+        sum += optionsCount
+
+    print(sum)
+
 def solve12_2():
-    f = open("example12.txt", "r")
+    f = open("input12.txt", "r")
     rawLines = f.readlines()
 
     lines = []
@@ -1262,76 +1312,28 @@ def solve12_2():
     print(lines)
     print(checkSums)
 
-    sumValidArrangaments = 0
+    sum = 0
 
     for l in range(len(lines)):
         currLine = lines[l]
         currCheckSum = checkSums[l]
 
-        sumHash = 0
-        sumWildcard = 0
-        for ch in currLine:
-            if ch == '#':
-                sumHash += 1
-            if ch == '?':
-                sumWildcard += 1
+        pattern = "^[\\.\\?]*"
+        for c in range(len(currCheckSum) - 1):
+            pattern += '[#\\?]{' + str(currCheckSum[c]) + '}[\\.\\?]+'
 
-        print(sumWildcard)
+        pattern += '[#\\?]{' + str(currCheckSum[-1]) + '}[\\.\\?]*$'
 
-        missingHashCount = sum(currCheckSum) - sumHash
-        print(missingHashCount)
+        print(pattern)
 
-        arrangements = getArrangements(sumWildcard, sum(currCheckSum) - sumHash)
+        p = re.compile(pattern)
 
-        validArrangamentsCount = 0
-        for arrangement in arrangements:
-            lineOption = []
-            wildcardNum = 0
-            for ch in currLine:
-                if ch == '?':
-                    if arrangement[wildcardNum] == 1:
-                        lineOption.append('#')
-                    else:
-                        lineOption.append('.')
+        optionsCount = findOptions(currLine, "", 0, p, 0)
+        print(optionsCount)
 
-                    wildcardNum += 1
-                else:
-                    lineOption.append(ch)
+        sum += optionsCount
 
-            #print(lineOption)
-
-            contHashNum = -1
-            inContHash = False
-            contHashLen = 0
-            for ch in lineOption:
-                if ch == '#':
-                    if not inContHash:
-                        inContHash = True
-                        contHashNum += 1
-
-                    contHashLen += 1
-                else:
-                    if inContHash:
-                        if len(currCheckSum) <= contHashNum or currCheckSum[contHashNum] != contHashLen:
-                            break
-
-                        inContHash = False
-                        contHashLen = 0
-            else:
-                if inContHash:
-                    if len(currCheckSum) <= contHashNum or currCheckSum[contHashNum] != contHashLen:
-                        pass
-                    else:
-                        validArrangamentsCount += 1
-                else:
-                    validArrangamentsCount += 1
-
-        print(validArrangamentsCount)
-        print()
-
-        sumValidArrangaments += validArrangamentsCount
-
-    print(sumValidArrangaments)
+    print(sum)
 
 def checkMirror(pattern):
     mirrorRows = []
@@ -1625,6 +1627,6 @@ import sys
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     sys.setrecursionlimit(20000)
-    solve15()
+    solve12_2()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
