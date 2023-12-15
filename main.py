@@ -1142,7 +1142,7 @@ def getArrangements(allFields, numOfActive):
     return [[1] + res for res in getArrangements(allFields - 1, numOfActive - 1)] + [[0] + res for res in getArrangements(allFields - 1, numOfActive)]
 
 def solve12():
-    f = open("input12.txt", "r")
+    f = open("example12.txt", "r")
     rawLines = f.readlines()
 
     lines = []
@@ -1150,14 +1150,25 @@ def solve12():
 
     for rawLine in rawLines:
         splitLine = rawLine.strip().split(' ')
-        lines.append(splitLine[0])
+        lines.append([ch for ch in splitLine[0]])
         checkSums.append([int(c) for c in splitLine[1].split(',')])
 
     print(lines)
     print(checkSums)
 
-    sumValidArrangaments = 0
+    for l in range(len(lines)):
+        currLine = lines[l]
+        currCheckSum = checkSums[l]
 
+        currCharNum = 0
+        for check in currCheckSum:
+            '*#.*#.*###*'
+
+            '???.###'
+
+
+
+    sumValidArrangaments = 0
     for l in range(len(lines)):
         currLine = lines[l]
         currCheckSum = checkSums[l]
@@ -1544,12 +1555,32 @@ def solve14():
 
     print(sumWeight)
 
+def hash(input):
+    hash = 0
+    for ch in input:
+        hash += ord(ch)
+        hash *= 17
+        hash %= 256
+
+    return hash
+
+def solve15():
+    f = open("input15.txt", "r")
+    rawLines = f.readlines()
+
+    insts = [inst for inst in rawLines[0].strip().split(',')]
+
+    sum = 0
+    for inst in insts:
+        sum += hash(inst)
+
+    print(sum)
 
 import sys
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     sys.setrecursionlimit(20000)
-    solve14()
+    solve15()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
