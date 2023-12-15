@@ -1564,15 +1564,59 @@ def hash(input):
 
     return hash
 
+class Lens:
+    def __init__(self, power, ord):
+        self.power = power
+        self.ord = ord
+
+    def __lt__(self, other):
+        return self.ord < other.ord
+
+    def __str__(self):
+        return f"{self.ord} {self.power}"
+
+class Box:
+    def __init__(self):
+        self.lensOrd = 0
+        self.lenses = {}
+
 def solve15():
     f = open("input15.txt", "r")
     rawLines = f.readlines()
 
     insts = [inst for inst in rawLines[0].strip().split(',')]
 
+    boxes = [Box() for _ in range(256)]
+
     sum = 0
+
     for inst in insts:
-        sum += hash(inst)
+        splitInst = inst.split('=')
+        if len(splitInst) == 1:
+            label = splitInst[0][0:-1]
+            boxes[hash(label)].lenses.pop(label, None)
+        else:
+            label = splitInst[0]
+            power = int(splitInst[1])
+            currBox = boxes[hash(label)]
+
+            lens = currBox.lenses.get(label, None)
+            if lens == None:
+                currBox.lenses[label] = Lens(power, currBox.lensOrd)
+                currBox.lensOrd += 1
+            else:
+                lens.power = power
+
+    for b in range(256):
+        lenses = list(boxes[b].lenses.values())
+        lenses.sort()
+
+        for lens in lenses:
+            print(lens, end=',')
+        print()
+
+        for l in range(len(lenses)):
+            sum += (b + 1) * (l + 1) * lenses[l].power
 
     print(sum)
 
