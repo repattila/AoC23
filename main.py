@@ -1682,27 +1682,85 @@ def solve16():
     rawLines = f.readlines()
 
     field = []
-    energized = []
 
     for rawLine in rawLines:
         line = rawLine.strip()
         field.append(line)
-        energized.append([False for _ in range(len(line))])
 
-    followBeam(field, energized, [], 0, 0, 'r')
+    maxEnergizedCount = 0
+    for c in range(len(field[0])):
+        energized = [[False for _ in range(len(rawLines[1]))] for _ in rawLines]
 
-    sum = 0
-    for row in energized:
-        for pos in row:
-            if pos:
-                print(1, end='')
-                sum += 1
-            else:
-                print(0, end='')
-        print()
+        followBeam(field, energized, [], 0, c, 'd')
 
-    print(sum)
+        sum = 0
+        for row in energized:
+            for pos in row:
+                if pos:
+                    print(1, end='')
+                    sum += 1
+                else:
+                    print(0, end='')
+            print()
 
+        print(sum)
+        maxEnergizedCount = max(maxEnergizedCount, sum)
+
+    for c in range(len(field[0])):
+        energized = [[False for _ in range(len(rawLines[1]))] for _ in rawLines]
+
+        followBeam(field, energized, [], len(field) - 1, c, 'u')
+
+        sum = 0
+        for row in energized:
+            for pos in row:
+                if pos:
+                    print(1, end='')
+                    sum += 1
+                else:
+                    print(0, end='')
+            print()
+
+        print(sum)
+        maxEnergizedCount = max(maxEnergizedCount, sum)
+
+    for r in range(len(field)):
+        energized = [[False for _ in range(len(rawLines[1]))] for _ in rawLines]
+
+        followBeam(field, energized, [], r, 0, 'r')
+
+        sum = 0
+        for row in energized:
+            for pos in row:
+                if pos:
+                    print(1, end='')
+                    sum += 1
+                else:
+                    print(0, end='')
+            print()
+
+        print(sum)
+        maxEnergizedCount = max(maxEnergizedCount, sum)
+
+    for r in range(len(field)):
+        energized = [[False for _ in range(len(rawLines[1]))] for _ in rawLines]
+
+        followBeam(field, energized, [], r, len(field[0]) - 1, 'l')
+
+        sum = 0
+        for row in energized:
+            for pos in row:
+                if pos:
+                    print(1, end='')
+                    sum += 1
+                else:
+                    print(0, end='')
+            print()
+
+        print(sum)
+        maxEnergizedCount = max(maxEnergizedCount, sum)
+
+    print(maxEnergizedCount)
 
 import sys
 
