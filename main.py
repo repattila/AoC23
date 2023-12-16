@@ -1622,11 +1622,93 @@ def solve15():
 
     print(sum)
 
+def followBeam(field, energized, splits, currRow, currCol, dir):
+    if currRow < 0 or currCol < 0 or len(field) <= currRow or len(field[currRow]) <= currCol:
+        return
+
+    if (currRow, currCol) in splits:
+        return
+
+    energized[currRow][currCol] = True
+    currElem = field[currRow][currCol]
+
+    if dir == 'r':
+        if currElem == '.' or currElem == '-':
+            followBeam(field, energized, splits, currRow, currCol + 1, dir)
+        elif currElem == '/':
+            followBeam(field, energized, splits, currRow - 1, currCol, 'u')
+        elif currElem == '\\':
+            followBeam(field, energized, splits, currRow + 1, currCol, 'd')
+        elif currElem == '|':
+            splits.append((currRow, currCol))
+            followBeam(field, energized, splits, currRow - 1, currCol, 'u')
+            followBeam(field, energized, splits, currRow + 1, currCol, 'd')
+    elif dir == 'd':
+        if currElem == '.' or currElem == '|':
+            followBeam(field, energized, splits, currRow + 1, currCol, dir)
+        elif currElem == '/':
+            followBeam(field, energized, splits, currRow, currCol - 1, 'l')
+        elif currElem == '\\':
+            followBeam(field, energized, splits, currRow, currCol + 1, 'r')
+        elif currElem == '-':
+            splits.append((currRow, currCol))
+            followBeam(field, energized, splits, currRow, currCol - 1, 'l')
+            followBeam(field, energized, splits, currRow, currCol + 1, 'r')
+    elif dir == 'l':
+        if currElem == '.' or currElem == '-':
+            followBeam(field, energized, splits, currRow, currCol - 1, dir)
+        elif currElem == '/':
+            followBeam(field, energized, splits, currRow + 1, currCol, 'd')
+        elif currElem == '\\':
+            followBeam(field, energized, splits, currRow - 1, currCol, 'u')
+        elif currElem == '|':
+            splits.append((currRow, currCol))
+            followBeam(field, energized, splits, currRow - 1, currCol, 'u')
+            followBeam(field, energized, splits, currRow + 1, currCol, 'd')
+    elif dir == 'u':
+        if currElem == '.' or currElem == '|':
+            followBeam(field, energized, splits, currRow - 1, currCol, dir)
+        elif currElem == '/':
+            followBeam(field, energized, splits, currRow, currCol + 1, 'r')
+        elif currElem == '\\':
+            followBeam(field, energized, splits, currRow, currCol - 1, 'l')
+        elif currElem == '-':
+            splits.append((currRow, currCol))
+            followBeam(field, energized, splits, currRow, currCol - 1, 'l')
+            followBeam(field, energized, splits, currRow, currCol + 1, 'r')
+
+def solve16():
+    f = open("input16.txt", "r")
+    rawLines = f.readlines()
+
+    field = []
+    energized = []
+
+    for rawLine in rawLines:
+        line = rawLine.strip()
+        field.append(line)
+        energized.append([False for _ in range(len(line))])
+
+    followBeam(field, energized, [], 0, 0, 'r')
+
+    sum = 0
+    for row in energized:
+        for pos in row:
+            if pos:
+                print(1, end='')
+                sum += 1
+            else:
+                print(0, end='')
+        print()
+
+    print(sum)
+
+
 import sys
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     sys.setrecursionlimit(20000)
-    solve12_2()
+    solve16()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
