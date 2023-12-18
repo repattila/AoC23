@@ -1266,7 +1266,7 @@ def findOptionsWCheckSums(line, alreadyMatched, matchPos, checkSums, currCheck, 
 
             return option1Count + option2Count
         else:
-            return findOptions(line, alreadyMatched + line[matchPos], matchPos + 1, pattern, optionCount)
+            return findOptions(line, alreadyMatched + line[matchPos], matchPos + 1, optionCount)
 
 def solve12_alt():
     f = open("input12.txt", "r")
@@ -1930,6 +1930,15 @@ def solve17():
     for row in cheapestRoute:
         print(row)
 
+class RowElem:
+    def __init__(self, type, startCol, endCol):
+        self.type = type
+        self.start = startCol
+        self.end = endCol
+
+    def __str__(self):
+        return f"{self.type}({self.start}, {self.end})"
+
 def solve18():
     f = open("input18.txt", "r")
     rawLines = f.readlines()
@@ -1938,7 +1947,20 @@ def solve18():
 
     for rawLine in rawLines:
         splitLine = rawLine.strip().split(' ')
-        steps.append((splitLine[0], int(splitLine[1])))
+
+        dir = ''
+        if splitLine[2][7] == '0':
+            dir = 'R'
+        elif splitLine[2][7] == '1':
+            dir = 'D'
+        elif splitLine[2][7] == '2':
+            dir = 'L'
+        elif splitLine[2][7] == '3':
+            dir = 'U'
+
+        steps.append((dir, int(splitLine[2][2:7], 16)))
+
+        #steps.append((splitLine[0], int(splitLine[1])))
 
     print(steps)
 
@@ -1976,123 +1998,267 @@ def solve18():
     startRow = currRow
     startCol = currCol
 
-    field = [['.' for _ in range(colLen)] for _ in range(rowLen)]
+    field = [[RowElem('.', 0, colLen)] for _ in range(rowLen)]
 
     lastStepNum = len(steps) - 1
     for s in range(len(steps)):
         currStep = steps[s]
         if currStep[0] == 'R':
-            for c in range(1, currStep[1] + 1):
-                field[currRow][currCol + c] = '-'
+            newElem = RowElem('-', currCol + 1, currCol + currStep[1] + 1)
+            bendElem = None
 
             if s != lastStepNum:
                 nextStep = steps[s + 1]
 
                 if nextStep[0] == 'D':
-                    field[currRow][currCol + currStep[1]] = '7'
+                    newElem = RowElem('-', currCol + 1, currCol + currStep[1])
+                    bendElem = RowElem('7', currCol + currStep[1], currCol + currStep[1] + 1)
                 elif nextStep[0] == 'U':
-                    field[currRow][currCol + currStep[1]] = 'J'
+                    newElem = RowElem('-', currCol + 1, currCol + currStep[1])
+                    bendElem = RowElem('J', currCol + currStep[1], currCol + currStep[1] + 1)
+
+            newRow = []
+            for elem in field[currRow]:
+                if elem.start <= newElem.start and newElem.start < elem.end:
+                    if elem.start == newElem.start:
+                        newRow.append(newElem)
+                    else:
+                        newRow.append(RowElem(elem.type, elem.start, newElem.start))
+                        newRow.append(newElem)
+
+                    if bendElem is not None:
+                        newRow.append(bendElem)
+
+                        if bendElem.end < elem.end:
+                            newRow.append(RowElem(elem.type, bendElem.end, elem.end))
+                    else:
+                        if newElem.end < elem.end:
+                            newRow.append(RowElem(elem.type, newElem.end, elem.end))
+                else:
+                    newRow.append(elem)
+
+            field[currRow] = newRow
 
             currCol += currStep[1]
         elif currStep[0] == 'L':
-            for c in range(-1, -1 * currStep[1] - 1, -1):
-                field[currRow][currCol + c] = '-'
+            newElem = RowElem('-', currCol - currStep[1], currCol)
+            bendElem = None
 
             if s != lastStepNum:
                 nextStep = steps[s + 1]
 
                 if nextStep[0] == 'D':
-                    field[currRow][currCol - currStep[1]] = 'F'
+                    newElem = RowElem('-', currCol - currStep[1] + 1, currCol)
+                    bendElem = RowElem('F', currCol - currStep[1], currCol - currStep[1] + 1)
                 elif nextStep[0] == 'U':
-                    field[currRow][currCol - currStep[1]] = 'L'
+                    newElem = RowElem('-', currCol - currStep[1] + 1, currCol)
+                    bendElem = RowElem('L', currCol - currStep[1], currCol - currStep[1] + 1)
 
+            newRow = []
+            if bendElem is None:
+                for elem in field[currRow]:
+                    if elem.start <= newElem.start and newElem.start < elem.end:
+                        if elem.start == newElem.start:
+                            newRow.append(newElem)
+                        else:
+                            newRow.append(RowElem(elem.type, elem.start, newElem.start))
+                            newRow.append(newElem)
+
+                        if newElem.end < elem.end:
+                            newRow.append(RowElem(elem.type, newElem.end, elem.end))
+                    else:
+                        newRow.append(elem)
+            else:
+                for elem in field[currRow]:
+                    if elem.start <= bendElem.start and bendElem.start < elem.end:
+                        if elem.start == bendElem.start:
+                            newRow.append(bendElem)
+                            newRow.append(newElem)
+                        else:
+                            newRow.append(RowElem(elem.type, elem.start, bendElem.start))
+                            newRow.append(bendElem)
+                            newRow.append(newElem)
+
+                        if newElem.end < elem.end:
+                            newRow.append(RowElem(elem.type, newElem.end, elem.end))
+                    else:
+                        newRow.append(elem)
+
+            field[currRow] = newRow
 
             currCol -= currStep[1]
         elif currStep[0] == 'D':
-            for r in range(1, currStep[1] + 1):
-                field[currRow + r][currCol] = '|'
+            for r in range(1, currStep[1]):
+                newElem = RowElem('|', currCol, currCol + 1)
+                nextRowNum = currRow + r
 
+                newRow = []
+                for elem in field[nextRowNum]:
+                    if elem.start <= newElem.start and newElem.start < elem.end:
+                        if elem.start == newElem.start:
+                            newRow.append(newElem)
+                        else:
+                            newRow.append(RowElem(elem.type, elem.start, newElem.start))
+                            newRow.append(newElem)
+
+                        if newElem.end < elem.end:
+                            newRow.append(RowElem(elem.type, newElem.end, elem.end))
+                    else:
+                        newRow.append(elem)
+
+                field[nextRowNum] = newRow
+
+            bendElem = None
             if s != lastStepNum:
                 nextStep = steps[s + 1]
 
                 if nextStep[0] == 'R':
-                    field[currRow + currStep[1]][currCol] = 'L'
+                    bendElem = RowElem('L', currCol, currCol + 1)
                 elif nextStep[0] == 'L':
-                    field[currRow + currStep[1]][currCol] = 'J'
+                    bendElem = RowElem('J', currCol, currCol + 1)
+
+            if bendElem is not None:
+                newRow = []
+                for elem in field[currRow + currStep[1]]:
+                    if elem.start <= bendElem.start and bendElem.start < elem.end:
+                        if elem.start == bendElem.start:
+                            newRow.append(bendElem)
+                        else:
+                            newRow.append(RowElem(elem.type, elem.start, bendElem.start))
+                            newRow.append(bendElem)
+
+                        if bendElem.end < elem.end:
+                            newRow.append(RowElem(elem.type, bendElem.end, elem.end))
+                    else:
+                        newRow.append(elem)
+
+                field[currRow + currStep[1]] = newRow
 
             currRow += currStep[1]
         elif currStep[0] == 'U':
-            for r in range(-1, -1 * currStep[1] - 1, -1):
-                field[currRow + r][currCol] = '|'
+            for r in range(1, currStep[1]):
+                newElem = RowElem('|', currCol, currCol + 1)
+                nextRowNum = currRow - r
 
+                newRow = []
+                for elem in field[nextRowNum]:
+                    if elem.start <= newElem.start and newElem.start < elem.end:
+                        if elem.start == newElem.start:
+                            newRow.append(newElem)
+                        else:
+                            newRow.append(RowElem(elem.type, elem.start, newElem.start))
+                            newRow.append(newElem)
+
+                        if newElem.end < elem.end:
+                            newRow.append(RowElem(elem.type, newElem.end, elem.end))
+                    else:
+                        newRow.append(elem)
+
+                field[nextRowNum] = newRow
+
+            bendElem = None
             if s != lastStepNum:
                 nextStep = steps[s + 1]
 
                 if nextStep[0] == 'R':
-                    field[currRow - currStep[1]][currCol] = 'F'
+                    bendElem = RowElem('F', currCol, currCol + 1)
                 elif nextStep[0] == 'L':
-                    field[currRow - currStep[1]][currCol] = '7'
+                    bendElem = RowElem('7', currCol, currCol + 1)
+
+            if bendElem is not None:
+                newRow = []
+                for elem in field[currRow - currStep[1]]:
+                    if elem.start <= bendElem.start and bendElem.start < elem.end:
+                        if elem.start == bendElem.start:
+                            newRow.append(bendElem)
+                        else:
+                            newRow.append(RowElem(elem.type, elem.start, bendElem.start))
+                            newRow.append(bendElem)
+
+                        if bendElem.end < elem.end:
+                            newRow.append(RowElem(elem.type, bendElem.end, elem.end))
+                    else:
+                        newRow.append(elem)
+
+                field[currRow - currStep[1]] = newRow
 
             currRow -= currStep[1]
 
+        bendElem = None
         if steps[-1][0] == 'U':
             if steps[0][0] == 'R':
-                field[startRow][startCol] = 'F'
+                bendElem = RowElem('F', startCol, startCol + 1)
             elif steps[0][0] == 'L':
-                field[startRow][startCol] = '7'
+                bendElem = RowElem('7', startCol, startCol + 1)
         elif steps[-1][0] == 'D':
             if steps[0][0] == 'R':
-                field[startRow][startCol] = 'L'
+                bendElem = RowElem('L', startCol, startCol + 1)
             elif steps[0][0] == 'L':
-                field[startRow][startCol] = 'J'
+                bendElem = RowElem('J', startCol, startCol + 1)
         elif steps[-1][0] == 'L':
             if steps[0][0] == 'U':
-                field[startRow][startCol] = 'L'
+                bendElem = RowElem('L', startCol, startCol + 1)
             elif steps[0][0] == 'D':
-                field[startRow][startCol] = 'F'
+                bendElem = RowElem('F', startCol, startCol + 1)
         elif steps[-1][0] == 'R':
             if steps[0][0] == 'U':
-                field[startRow][startCol] = 'J'
+                bendElem = RowElem('J', startCol, startCol + 1)
             elif steps[0][0] == 'D':
-                field[startRow][startCol] = '7'
+                bendElem = RowElem('7', startCol, startCol + 1)
+
+        newRow = []
+        for elem in field[startRow]:
+            if elem.start <= bendElem.start and bendElem.start < elem.end:
+                if elem.start == bendElem.start:
+                    newRow.append(bendElem)
+                else:
+                    newRow.append(RowElem(elem.type, elem.start, bendElem.start))
+                    newRow.append(bendElem)
+
+                if bendElem.end < elem.end:
+                    newRow.append(RowElem(elem.type, bendElem.end, elem.end))
+            else:
+                newRow.append(elem)
+
+        field[startRow] = newRow
 
     sum = 0
     for row in field:
         inDigSite = False
         prevBend = ''
 
-        for p in range(len(row)):
-            print(row[p], end='')
+        for elem in row:
+            print(elem, end='')
 
-            if row[p] == '.':
+            if elem.type == '.':
                 if inDigSite:
-                    sum += 1
-            elif row[p] == '-':
-                sum += 1
-            elif row[p] == '|':
+                    sum += elem.end - elem.start
+            elif elem.type == '-':
+                sum += elem.end - elem.start
+            elif elem.type == '|':
                 sum += 1
 
                 inDigSite = not inDigSite
-            elif row[p] == 'F':
+            elif elem.type == 'F':
                 sum += 1
 
                 inDigSite = not inDigSite
 
                 prevBend = 'F'
-            elif row[p] == 'J':
+            elif elem.type == 'J':
                 sum += 1
 
                 if prevBend != 'F':
                     inDigSite = not inDigSite
 
                 prevBend = 'J'
-            elif row[p] == 'L':
+            elif elem.type == 'L':
                 sum += 1
 
                 inDigSite = not inDigSite
 
                 prevBend = 'L'
-            elif row[p] == '7':
+            elif elem.type == '7':
                 sum += 1
 
                 if prevBend != 'L':
