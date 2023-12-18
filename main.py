@@ -1930,11 +1930,195 @@ def solve17():
     for row in cheapestRoute:
         print(row)
 
+def solve18():
+    f = open("input18.txt", "r")
+    rawLines = f.readlines()
+
+    steps = []
+
+    for rawLine in rawLines:
+        splitLine = rawLine.strip().split(' ')
+        steps.append((splitLine[0], int(splitLine[1])))
+
+    print(steps)
+
+    maxRow = 0
+    minRow = 0
+    maxCol = 0
+    minCol = 0
+
+    currRow = 0
+    currCol = 0
+
+    for step in steps:
+        if step[0] == 'R':
+            currCol += step[1]
+            maxCol = max(maxCol, currCol)
+        elif step[0] == 'L':
+            currCol -= step[1]
+            minCol = min(minCol, currCol)
+        elif step[0] == 'D':
+            currRow += step[1]
+            maxRow = max(maxRow, currRow)
+        elif step[0] == 'U':
+            currRow -= step[1]
+            minRow = min(minRow, currRow)
+
+    print(f"{currRow, currCol}")
+    print(f"{minRow, maxRow, minCol, maxCol}")
+
+    rowLen = maxRow - minRow + 1
+    colLen = maxCol - minCol + 1
+
+    currRow: int = 0 - minRow
+    currCol: int = 0 - minCol
+
+    startRow = currRow
+    startCol = currCol
+
+    field = [['.' for _ in range(colLen)] for _ in range(rowLen)]
+
+    lastStepNum = len(steps) - 1
+    for s in range(len(steps)):
+        currStep = steps[s]
+        if currStep[0] == 'R':
+            for c in range(1, currStep[1] + 1):
+                field[currRow][currCol + c] = '-'
+
+            if s != lastStepNum:
+                nextStep = steps[s + 1]
+
+                if nextStep[0] == 'D':
+                    field[currRow][currCol + currStep[1]] = '7'
+                elif nextStep[0] == 'U':
+                    field[currRow][currCol + currStep[1]] = 'J'
+
+            currCol += currStep[1]
+        elif currStep[0] == 'L':
+            for c in range(-1, -1 * currStep[1] - 1, -1):
+                field[currRow][currCol + c] = '-'
+
+            if s != lastStepNum:
+                nextStep = steps[s + 1]
+
+                if nextStep[0] == 'D':
+                    field[currRow][currCol - currStep[1]] = 'F'
+                elif nextStep[0] == 'U':
+                    field[currRow][currCol - currStep[1]] = 'L'
+
+
+            currCol -= currStep[1]
+        elif currStep[0] == 'D':
+            for r in range(1, currStep[1] + 1):
+                field[currRow + r][currCol] = '|'
+
+            if s != lastStepNum:
+                nextStep = steps[s + 1]
+
+                if nextStep[0] == 'R':
+                    field[currRow + currStep[1]][currCol] = 'L'
+                elif nextStep[0] == 'L':
+                    field[currRow + currStep[1]][currCol] = 'J'
+
+            currRow += currStep[1]
+        elif currStep[0] == 'U':
+            for r in range(-1, -1 * currStep[1] - 1, -1):
+                field[currRow + r][currCol] = '|'
+
+            if s != lastStepNum:
+                nextStep = steps[s + 1]
+
+                if nextStep[0] == 'R':
+                    field[currRow - currStep[1]][currCol] = 'F'
+                elif nextStep[0] == 'L':
+                    field[currRow - currStep[1]][currCol] = '7'
+
+            currRow -= currStep[1]
+
+        if steps[-1][0] == 'U':
+            if steps[0][0] == 'R':
+                field[startRow][startCol] = 'F'
+            elif steps[0][0] == 'L':
+                field[startRow][startCol] = '7'
+        elif steps[-1][0] == 'D':
+            if steps[0][0] == 'R':
+                field[startRow][startCol] = 'L'
+            elif steps[0][0] == 'L':
+                field[startRow][startCol] = 'J'
+        elif steps[-1][0] == 'L':
+            if steps[0][0] == 'U':
+                field[startRow][startCol] = 'L'
+            elif steps[0][0] == 'D':
+                field[startRow][startCol] = 'F'
+        elif steps[-1][0] == 'R':
+            if steps[0][0] == 'U':
+                field[startRow][startCol] = 'J'
+            elif steps[0][0] == 'D':
+                field[startRow][startCol] = '7'
+
+    sum = 0
+    for row in field:
+        inDigSite = False
+        prevBend = ''
+
+        for p in range(len(row)):
+            print(row[p], end='')
+
+            if row[p] == '.':
+                if inDigSite:
+                    sum += 1
+            elif row[p] == '-':
+                sum += 1
+            elif row[p] == '|':
+                sum += 1
+
+                inDigSite = not inDigSite
+            elif row[p] == 'F':
+                sum += 1
+
+                inDigSite = not inDigSite
+
+                prevBend = 'F'
+            elif row[p] == 'J':
+                sum += 1
+
+                if prevBend != 'F':
+                    inDigSite = not inDigSite
+
+                prevBend = 'J'
+            elif row[p] == 'L':
+                sum += 1
+
+                inDigSite = not inDigSite
+
+                prevBend = 'L'
+            elif row[p] == '7':
+                sum += 1
+
+                if prevBend != 'L':
+                    inDigSite = not inDigSite
+
+                prevBend = '7'
+
+        print()
+
+    print(sum)
+
+
+
+
+
+
+
+
+
+
+
 import sys
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     sys.setrecursionlimit(200000)
-    solve17()
+    solve18()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
