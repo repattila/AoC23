@@ -2278,6 +2278,91 @@ def solve18():
 
     print(sum)
 
+class WFStep:
+    def __init__(self, code):
+        splitCode = code.split(':')
+
+        if len(splitCode) == 1:
+            self.compareTo = None
+            self.sendTo = splitCode[0][:-1]
+        else:
+            compareChar = splitCode[0][0]
+            if compareChar == 'x':
+                self.compare = 0
+            elif compareChar == 'm':
+                self.compare = 1
+            elif compareChar == 'a':
+                self.compare = 2
+            elif compareChar == 's':
+                self.compare = 3
+
+            self.compareTo = int(splitCode[0][2:])
+            self.smaller = True if splitCode[0][1] == '<' else False
+            self.sendTo = splitCode[1]
+
+    def __str__(self):
+        if self.compareTo is None:
+            return(f"{self.sendTo}")
+        else:
+            return(f"{self.compare}{'<' if self.smaller else '>'}{self.compareTo}:{self.sendTo}")
+
+    def exec(self, input):
+        if self.compareTo is None:
+            return self.sendTo
+        else:
+            if self.smaller:
+                if input[self.compare] < self.compareTo:
+                    return self.sendTo
+                else:
+                    return None
+            else:
+                if self.compareTo < input[self.compare]:
+                    return self.sendTo
+                else:
+                    return None
+
+def solve19():
+    f = open("input19.txt", "r")
+    rawLines = f.readlines()
+
+    inWorkflows = True
+    workflows = {}
+    parts = []
+    for rawLine in rawLines:
+        if rawLine == '\n':
+            inWorkflows = False
+            continue
+
+        if inWorkflows:
+            firstSplit = rawLine.strip().split('{')
+            secondSplit = firstSplit[1].split(',')
+
+            workflows[firstSplit[0]] = [WFStep(split) for split in secondSplit]
+        else:
+            part = [int(split.split('=')[1]) for split in rawLine[1:-2].split(',')]
+            parts.append(part)
+
+    for k, v in workflows.items():
+        print(f"{k} ", end='')
+        for step in v:
+            print(step, end=',')
+        print()
+
+    print(parts)
+
+    accSum = 0
+    for part in parts:
+        wf = 'in'
+        while wf not in ['A', 'R']:
+            for step in workflows[wf]:
+                wf = step.exec(part)
+                if wf is not None:
+                    break
+
+        if wf == 'A':
+            accSum += sum(part)
+
+    print(accSum)
 
 
 
@@ -2286,6 +2371,6 @@ import sys
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     sys.setrecursionlimit(200000)
-    solve17()
+    solve19()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
