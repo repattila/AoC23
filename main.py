@@ -1795,11 +1795,20 @@ def solve16():
 
     print(maxEnergizedCount)
 
+heatLossLimit = 1171
+
 def followRoute(field, cheapestRoute, currRow, currCol, dir, stepsInDir, heatLoss):
+    global heatLossLimit
+
+    if heatLossLimit <= heatLoss:
+        return
+
     endRow = len(field) - 1
     endCol = len(field[currRow]) - 1
 
     if currRow == endRow and currCol == endCol:
+        heatLossLimit = min(heatLoss, heatLossLimit)
+        print(heatLossLimit)
         return
 
     moveDown = False
@@ -1922,13 +1931,12 @@ def solve17():
     # array of cheapest route per direction per pos: [u, d, r, l]
     cheapestRoute = [[[0, 0, 0, 0] for _ in line.strip()] for line in rawLines]
 
-    print(field)
-    print(cheapestRoute)
+    #print(field)
+    #print(cheapestRoute)
 
     followRoute(field, cheapestRoute, 0, 0, 'r', 0, 0)
 
-    for row in cheapestRoute:
-        print(row)
+    print(cheapestRoute[-1][-1])
 
 class RowElem:
     def __init__(self, type, startCol, endCol):
@@ -2273,18 +2281,11 @@ def solve18():
 
 
 
-
-
-
-
-
-
-
 import sys
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     sys.setrecursionlimit(200000)
-    solve18()
+    solve17()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
