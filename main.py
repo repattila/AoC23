@@ -2321,6 +2321,49 @@ class WFStep:
                 else:
                     return None
 
+    def execOnRange(self, input):
+        res = []
+        if self.compareTo is None:
+            resRanges = [r for r in input]
+            res.append((self.sendTo, resRanges))
+        else:
+            rangeStart = input[self.compare][0]
+            rangeEnd = input[self.compare][1]
+
+            matchRange = None
+            complementRange = None
+
+            if self.smaller:
+                if rangeStart < self.compareTo:
+                    if self.compareTo < rangeEnd:
+                        matchRange = (rangeStart, self.compareTo)
+                        complementRange = (self.compareTo, rangeEnd)
+                    else:
+                        matchRange = (rangeStart, rangeEnd)
+                else:
+                    complementRange = (rangeStart, rangeEnd)
+            else:
+                if self.compareTo < rangeStart:
+                    matchRange = (rangeStart, rangeEnd)
+                else:
+                    if self.compareTo < rangeEnd:
+                        matchRange = (self.compareTo + 1, rangeEnd)
+                        complementRange = (rangeStart, self.compareTo + 1)
+                    else:
+                        complementRange = (rangeStart, rangeEnd)
+
+            if matchRange is not None:
+                resRanges = [r for r in input]
+                resRanges[self.compare] = matchRange
+                res.append((self.sendTo, resRanges))
+
+            if complementRange is not None:
+                resRanges = [r for r in input]
+                resRanges[self.compare] = complementRange
+                res.append((None, resRanges))
+
+        return res
+
 def solve19():
     f = open("input19.txt", "r")
     rawLines = f.readlines()
@@ -2364,6 +2407,73 @@ def solve19():
 
     print(accSum)
 
+def mapWorkflow(workflows, currW, currRanges, acceptedRanges):
+    if currW == 'A':
+        acceptedRanges.append(currRanges)
+        return
+    elif currW == 'R':
+        return
+    else:
+        procRanges = currRanges
+        for step in workflows[currW]:
+            res = step.execOnRange(procRanges)
+
+            print(res)
+
+            if 0 < len(res):
+                mapWorkflow(workflows, res[0][0], res[0][1], acceptedRanges)
+
+            if len(res) == 2:
+                procRanges = res[1][1]
+            else:
+                break
+
+
+def solve19_2():
+    f = open("input19.txt", "r")
+    rawLines = f.readlines()
+
+    inWorkflows = True
+    workflows = {}
+
+    for rawLine in rawLines:
+        if rawLine == '\n':
+            inWorkflows = False
+            continue
+
+        if inWorkflows:
+            firstSplit = rawLine.strip().split('{')
+            secondSplit = firstSplit[1].split(',')
+
+            workflows[firstSplit[0]] = [WFStep(split) for split in secondSplit]
+        else:
+            break
+
+    for k, v in workflows.items():
+        print(f"{k} ", end='')
+        for step in v:
+            print(step, end=',')
+        print()
+
+    validRanges = [(1, 4001), (1, 4001), (1, 4001), (1, 4001)]
+    acceptedRanges = []
+
+    mapWorkflow(workflows, "in", validRanges, acceptedRanges)
+
+    print()
+
+    sum = 0
+    for ranges in acceptedRanges:
+        print(ranges)
+
+        options = 1
+        for range in ranges:
+            options *= max(1, range[1] - range[0])
+
+        sum += options
+
+    print(sum)
+
 
 
 import sys
@@ -2371,6 +2481,6 @@ import sys
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     sys.setrecursionlimit(200000)
-    solve19()
+    solve19_2()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
