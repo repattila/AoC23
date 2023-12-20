@@ -1228,45 +1228,49 @@ def solve12():
 
 import regex as re
 
-def findOptions(line, alreadyMatched, matchPos, pattern, optionCount):
+def findOptions(line, alreadyMatched, matchPos, pattern, checksums, currChecksumNum, consHashs, optionCount):
     if len(line) <= matchPos:
         return optionCount
     else:
-        if line[matchPos] == '?':
-            restOfLine = line[matchPos + 1:]
-            option1 = alreadyMatched + '.'
-            option2 = alreadyMatched + '#'
-            option1Count = 0
-            option2Count = 0
-
-            if pattern.fullmatch(option1 + restOfLine):
-                option1Count = findOptions(line, option1, matchPos + 1, pattern, 1)
-
-            if pattern.fullmatch(option2 + restOfLine):
-                option2Count = findOptions(line, option2, matchPos + 1, pattern, 1)
-
-            return option1Count + option2Count
-        else:
-            return findOptions(line, alreadyMatched + line[matchPos], matchPos + 1, pattern, optionCount)
-
-def findOptionsWCheckSums(line, alreadyMatched, matchPos, checkSums, currCheck, optionCount):
-    if len(line) <= matchPos:
-        return optionCount
-    else:
-
+        currCheck = 0
+        if currChecksumNum < len(checksums):
+            currCheck = checksums[currChecksumNum]
 
         if line[matchPos] == '?':
             restOfLine = line[matchPos + 1:]
-            option1 = alreadyMatched + '.'
-            option2 = alreadyMatched + '#'
+
             option1Count = 0
             option2Count = 0
 
+            if consHashs == 0 or currCheck == 0:
+                option1 = alreadyMatched + '.'
+                if pattern.fullmatch(option1 + restOfLine):
+                    option1Count = findOptions(line, option1, matchPos + 1, pattern, checksums, currChecksumNum, consHashs,  1)
+            elif consHashs == currCheck:
+                consHashs = 0
+                currChecksumNum += 1
 
+                option1Count = findOptions(line, alreadyMatched + '.', matchPos + 1, pattern, checksums, currChecksumNum, consHashs,1)
+
+            if consHashs == 0:
+                option2 = alreadyMatched + '#'
+                if pattern.fullmatch(option2 + restOfLine):
+                    option2Count = findOptions(line, option2, matchPos + 1, pattern, checksums, currChecksumNum, consHashs + 1, 1)
+
+            elif currCheck != 0 and consHashs < currCheck:
+                option2Count = findOptions(line, alreadyMatched + '#', matchPos + 1, pattern, checksums, currChecksumNum,
+                                           consHashs + 1, 1)
 
             return option1Count + option2Count
         else:
-            return findOptions(line, alreadyMatched + line[matchPos], matchPos + 1, optionCount)
+            if line[matchPos] == '#':
+                consHashs += 1
+            elif line[matchPos] == '.':
+                if currCheck != 0 and consHashs == currCheck:
+                    consHashs = 0
+                    currChecksumNum += 1
+
+            return findOptions(line, alreadyMatched + line[matchPos], matchPos + 1, pattern, checksums, currChecksumNum, consHashs, optionCount)
 
 def solve12_alt():
     f = open("input12.txt", "r")
@@ -1299,27 +1303,12 @@ def solve12_alt():
 
         p = re.compile(pattern)
 
-        optionsCount = findOptions(currLine, "", 0, p, 0)
+        optionsCount = findOptions(currLine, "", 0, p, currCheckSum, 0, 0, 0)
         print(optionsCount)
 
         sum += optionsCount
 
     print(sum)
-
-def solve12_alt1():
-    f = open("input12.txt", "r")
-    rawLines = f.readlines()
-
-    lines = []
-    checkSums = []
-
-    for rawLine in rawLines:
-        splitLine = rawLine.strip().split(' ')
-        lines.append(splitLine[0])
-        checkSums.append([int(c) for c in splitLine[1].split(',')])
-
-    print(lines)
-    print(checkSums)
 
 def solve12_2():
     f = open("input12.txt", "r")
@@ -1361,7 +1350,7 @@ def solve12_2():
 
         p = re.compile(pattern)
 
-        optionsCount = findOptions(currLine, "", 0, p, 0)
+        optionsCount = findOptions(currLine, "", 0, p, currCheckSum, 0, 0, 0)
         print(optionsCount)
 
         sum += optionsCount
@@ -2481,6 +2470,6 @@ import sys
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     sys.setrecursionlimit(200000)
-    solve19_2()
+    solve12_alt()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
