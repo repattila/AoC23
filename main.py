@@ -1229,7 +1229,7 @@ def solve12():
 import regex as re
 
 def findOptions(line, alreadyMatched, matchPos, pattern, checksums, currChecksumNum, consHashs, optionCount):
-    if len(line) <= matchPos:
+    if len(line) <= matchPos or len(checksums) <= currChecksumNum:
         return optionCount
     else:
         currCheck = 0
@@ -1252,7 +1252,7 @@ def findOptions(line, alreadyMatched, matchPos, pattern, checksums, currChecksum
 
                 option1Count = findOptions(line, alreadyMatched + '.', matchPos + 1, pattern, checksums, currChecksumNum, consHashs,1)
 
-            if consHashs == 0:
+            if consHashs == 0 and currCheck != 0:
                 option2 = alreadyMatched + '#'
                 if pattern.fullmatch(option2 + restOfLine):
                     option2Count = findOptions(line, option2, matchPos + 1, pattern, checksums, currChecksumNum, consHashs + 1, 1)
@@ -2465,11 +2465,15 @@ def solve19_2():
 
 
 
-import sys
+import sys, time
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     sys.setrecursionlimit(200000)
+    before = time.perf_counter()
     solve12_alt()
+    after = time.perf_counter()
+
+    print(after - before)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
