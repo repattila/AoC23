@@ -2575,8 +2575,11 @@ def solve20():
 
     highCount = 0
     lowCount = 0
+    buttonPressCount = 0
 
-    for _ in range(0, 1000):
+    while True:
+        buttonPressCount += 1
+
         # Count low pulse from button
         lowCount += 1
 
@@ -2585,15 +2588,18 @@ def solve20():
             pulsesQ.append(pulse)
 
         while pulsesQ:
-            for pulse in pulsesQ:
-                print(pulse, end=", ")
-            print()
+            # for pulse in pulsesQ:
+            #     print(pulse, end=", ")
+            # print()
 
             currPulse = pulsesQ.popleft()
             if currPulse.isHigh:
                 highCount += 1
             else:
                 lowCount += 1
+
+            if currPulse.dest == "rx" and not currPulse.isHigh:
+                break
 
             destComp = components.get(currPulse.dest, None)
             if destComp is None:
@@ -2602,10 +2608,15 @@ def solve20():
 
             for pulse in res:
                 pulsesQ.append(pulse)
+        else:
+            continue
+
+        break
 
     print(highCount)
     print(lowCount)
-    print(highCount * lowCount)
+    print(buttonPressCount)
+    #print(highCount * lowCount)
 
 
 
