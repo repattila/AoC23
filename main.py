@@ -1228,49 +1228,46 @@ def solve12():
 
 import regex as re
 
-def findOptions(line, alreadyMatched, matchPos, pattern, checksums, currChecksumNum, consHashs, optionCount):
+def findOptions(line, alreadyMatched, matchPos, pattern, checksums, currChecksumNum, consHashs):
     if len(line) <= matchPos or len(checksums) <= currChecksumNum:
-        return optionCount
+        return 1
     else:
-        currCheck = 0
-        if currChecksumNum < len(checksums):
-            currCheck = checksums[currChecksumNum]
+        currCheck = checksums[currChecksumNum]
 
         if line[matchPos] == '?':
-            restOfLine = line[matchPos + 1:]
-
             option1Count = 0
             option2Count = 0
 
-            if consHashs == 0 or currCheck == 0:
+            if consHashs == 0:
                 option1 = alreadyMatched + '.'
+                restOfLine = line[matchPos + 1:]
                 if pattern.fullmatch(option1 + restOfLine):
-                    option1Count = findOptions(line, option1, matchPos + 1, pattern, checksums, currChecksumNum, consHashs,  1)
+                    option1Count = findOptions(line, option1, matchPos + 1, pattern, checksums, currChecksumNum, consHashs)
             elif consHashs == currCheck:
                 consHashs = 0
                 currChecksumNum += 1
 
-                option1Count = findOptions(line, alreadyMatched + '.', matchPos + 1, pattern, checksums, currChecksumNum, consHashs,1)
+                option1Count = findOptions(line, alreadyMatched + '.', matchPos + 1, pattern, checksums, currChecksumNum, consHashs)
 
-            if consHashs == 0 and currCheck != 0:
+            if consHashs == 0:
                 option2 = alreadyMatched + '#'
+                restOfLine = line[matchPos + 1:]
                 if pattern.fullmatch(option2 + restOfLine):
-                    option2Count = findOptions(line, option2, matchPos + 1, pattern, checksums, currChecksumNum, consHashs + 1, 1)
-
-            elif currCheck != 0 and consHashs < currCheck:
+                    option2Count = findOptions(line, option2, matchPos + 1, pattern, checksums, currChecksumNum, consHashs + 1)
+            elif consHashs < currCheck:
                 option2Count = findOptions(line, alreadyMatched + '#', matchPos + 1, pattern, checksums, currChecksumNum,
-                                           consHashs + 1, 1)
+                                           consHashs + 1)
 
             return option1Count + option2Count
         else:
             if line[matchPos] == '#':
                 consHashs += 1
             elif line[matchPos] == '.':
-                if currCheck != 0 and consHashs == currCheck:
+                if consHashs == currCheck:
                     consHashs = 0
                     currChecksumNum += 1
 
-            return findOptions(line, alreadyMatched + line[matchPos], matchPos + 1, pattern, checksums, currChecksumNum, consHashs, optionCount)
+            return findOptions(line, alreadyMatched + line[matchPos], matchPos + 1, pattern, checksums, currChecksumNum, consHashs)
 
 def solve12_alt():
     f = open("input12.txt", "r")
@@ -1303,7 +1300,7 @@ def solve12_alt():
 
         p = re.compile(pattern)
 
-        optionsCount = findOptions(currLine, "", 0, p, currCheckSum, 0, 0, 0)
+        optionsCount = findOptions(currLine, "", 0, p, currCheckSum, 0, 0)
         print(optionsCount)
 
         sum += optionsCount
@@ -2618,9 +2615,40 @@ def solve20():
     print(buttonPressCount)
     #print(highCount * lowCount)
 
+def getReachable(field, reachables: set, stepsCount):
+    if stepsCount == 0:
+        return reachables
+    else:
+        fieldLen = len(field)
+        rowLen = len(field[0])
 
+        newReachables = set()
+        for reachable in reachables:
+            for nextRow, nextCol in [(reachable[0] + 1, reachable[1]), (reachable[0] - 1, reachable[1]), (reachable[0], reachable[1] + 1), (reachable[0], reachable[1] - 1)]:
+                    if 0 <= nextRow and nextRow < fieldLen and 0 <= nextCol and nextCol < rowLen and field[nextRow][nextCol] != '#':
+                        newReachables.add((nextRow, nextCol))
 
+        print(newReachables)
 
+        return getReachable(field, newReachables, stepsCount - 1)
+
+def solve21():
+    f = open("input21.txt", "r")
+    rawLines = f.readlines()
+
+    field = []
+    reachables: set
+
+    for r in range(len(rawLines)):
+        rawLine = rawLines[r]
+        field.append(rawLine.strip())
+
+        sPos = rawLine.find('S')
+        if sPos != -1:
+            reachables = {(r, sPos)}
+
+    reachables = getReachable(field, reachables, 64)
+    print(len(reachables))
 
 import sys, time
 
@@ -2629,7 +2657,7 @@ if __name__ == '__main__':
     sys.setrecursionlimit(200000)
     before = time.perf_counter()
 
-    solve20()
+    solve21()
 
     after = time.perf_counter()
 
