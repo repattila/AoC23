@@ -2616,6 +2616,8 @@ def solve20():
     #print(highCount * lowCount)
 
 def getReachable(field, reachables: set, stepsCount):
+    print(stepsCount)
+
     if stepsCount == 0:
         return reachables
     else:
@@ -2625,10 +2627,13 @@ def getReachable(field, reachables: set, stepsCount):
         newReachables = set()
         for reachable in reachables:
             for nextRow, nextCol in [(reachable[0] + 1, reachable[1]), (reachable[0] - 1, reachable[1]), (reachable[0], reachable[1] + 1), (reachable[0], reachable[1] - 1)]:
-                    if 0 <= nextRow and nextRow < fieldLen and 0 <= nextCol and nextCol < rowLen and field[nextRow][nextCol] != '#':
+                    mappedNextRow = nextRow % fieldLen
+                    mappedNextCol = nextCol % rowLen
+
+                    if field[mappedNextRow][mappedNextCol] != '#':
                         newReachables.add((nextRow, nextCol))
 
-        print(newReachables)
+        #print(newReachables)
 
         return getReachable(field, newReachables, stepsCount - 1)
 
@@ -2647,7 +2652,7 @@ def solve21():
         if sPos != -1:
             reachables = {(r, sPos)}
 
-    reachables = getReachable(field, reachables, 64)
+    reachables = getReachable(field, reachables, 26501365)
     print(len(reachables))
 
 import sys, time
