@@ -2616,7 +2616,7 @@ def solve20():
     #print(highCount * lowCount)
 
 def solve21():
-    f = open("input21.txt", "r")
+    f = open("example21.txt", "r")
     rawLines = f.readlines()
 
     field = []
@@ -2632,14 +2632,19 @@ def solve21():
 
     fieldLen = len(field)
     rowLen = len(field[0])
-    allReachableCount = [1]
+    evenReachableCount = 1
+    oddReachableCount = 0
     prevReachables = currReachables
-    stepsCount = 26501365
-    while stepsCount != 0:
+    stepsCount = 0
+    while stepsCount != 26501365:
+    #while stepsCount != 5000:
+        stepsCount += 1
         newReachables = set()
         for reachable in currReachables:
-            for nextRow, nextCol in [(reachable[0] + 1, reachable[1]), (reachable[0] - 1, reachable[1]),
-                                     (reachable[0], reachable[1] + 1), (reachable[0], reachable[1] - 1)]:
+            currRow = reachable[0]
+            currCol = reachable[1]
+            for nextRow, nextCol in [(currRow + 1, currCol), (currRow - 1, currCol),
+                                     (currRow, currCol + 1), (currRow, currCol - 1)]:
                 if (nextRow, nextCol) not in prevReachables:
                     mappedNextRow = nextRow % fieldLen
                     mappedNextCol = nextCol % rowLen
@@ -2650,16 +2655,17 @@ def solve21():
         prevReachables = currReachables
         currReachables = newReachables
 
-        allReachableCount.append(len(newReachables))
+        if stepsCount % 2 == 0:
+            evenReachableCount += len(newReachables)
+        else:
+            oddReachableCount += len(newReachables)
 
         print(stepsCount)
-        stepsCount -= 1
 
-    sum = 0
-    for a in range(len(allReachableCount) - 1, -1, -2):
-        sum += allReachableCount[a]
-
-    print(sum)
+    if stepsCount % 2 == 0:
+        print(evenReachableCount)
+    else:
+        print(oddReachableCount)
 
 import sys, time
 
