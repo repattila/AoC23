@@ -2615,38 +2615,12 @@ def solve20():
     print(buttonPressCount)
     #print(highCount * lowCount)
 
-def getReachable(field, currReachables, prevReachables, allReachableCount: list[int], stepsCount):
-    print(stepsCount)
-
-    if stepsCount == 0:
-        sum = 0
-        for a in range(len(allReachableCount) - 1, -1, -2):
-            sum += allReachableCount[a]
-        return sum
-    else:
-        fieldLen = len(field)
-        rowLen = len(field[0])
-
-        newReachables = set()
-        for reachable in currReachables:
-            for nextRow, nextCol in [(reachable[0] + 1, reachable[1]), (reachable[0] - 1, reachable[1]), (reachable[0], reachable[1] + 1), (reachable[0], reachable[1] - 1)]:
-                if (nextRow, nextCol) not in prevReachables:
-                    mappedNextRow = nextRow % fieldLen
-                    mappedNextCol = nextCol % rowLen
-
-                    if field[mappedNextRow][mappedNextCol] != '#':
-                        newReachables.add((nextRow, nextCol))
-
-        allReachableCount.append(len(newReachables))
-
-        return getReachable(field, newReachables, currReachables, allReachableCount, stepsCount - 1)
-
 def solve21():
     f = open("input21.txt", "r")
     rawLines = f.readlines()
 
     field = []
-    reachables: set
+    currReachables: set
 
     for r in range(len(rawLines)):
         rawLine = rawLines[r]
@@ -2654,10 +2628,38 @@ def solve21():
 
         sPos = rawLine.find('S')
         if sPos != -1:
-            reachables = {(r, sPos)}
+            currReachables = {(r, sPos)}
 
-    reachablesCount = getReachable(field, reachables, reachables, [1], 26501365)
-    print(reachablesCount)
+    fieldLen = len(field)
+    rowLen = len(field[0])
+    allReachableCount = [1]
+    prevReachables = currReachables
+    stepsCount = 26501365
+    while stepsCount != 0:
+        newReachables = set()
+        for reachable in currReachables:
+            for nextRow, nextCol in [(reachable[0] + 1, reachable[1]), (reachable[0] - 1, reachable[1]),
+                                     (reachable[0], reachable[1] + 1), (reachable[0], reachable[1] - 1)]:
+                if (nextRow, nextCol) not in prevReachables:
+                    mappedNextRow = nextRow % fieldLen
+                    mappedNextCol = nextCol % rowLen
+
+                    if field[mappedNextRow][mappedNextCol] != '#':
+                        newReachables.add((nextRow, nextCol))
+
+        prevReachables = currReachables
+        currReachables = newReachables
+
+        allReachableCount.append(len(newReachables))
+
+        print(stepsCount)
+        stepsCount -= 1
+
+    sum = 0
+    for a in range(len(allReachableCount) - 1, -1, -2):
+        sum += allReachableCount[a]
+
+    print(sum)
 
 import sys, time
 
