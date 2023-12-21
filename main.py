@@ -2615,13 +2615,13 @@ def solve20():
     print(buttonPressCount)
     #print(highCount * lowCount)
 
-def getReachable(field, currReachables, prevReachables, allReachables: list[set], stepsCount):
+def getReachable(field, currReachables, prevReachables, allReachableCount: list[int], stepsCount):
     print(stepsCount)
 
     if stepsCount == 0:
         sum = 0
-        for r in range(len(allReachables) - 1, -1, -2):
-            sum += len(allReachables[r])
+        for a in range(len(allReachableCount) - 1, -1, -2):
+            sum += allReachableCount[a]
         return sum
     else:
         fieldLen = len(field)
@@ -2637,9 +2637,9 @@ def getReachable(field, currReachables, prevReachables, allReachables: list[set]
                     if field[mappedNextRow][mappedNextCol] != '#':
                         newReachables.add((nextRow, nextCol))
 
-        allReachables.append(newReachables)
+        allReachableCount.append(len(newReachables))
 
-        return getReachable(field, newReachables, currReachables, allReachables, stepsCount - 1)
+        return getReachable(field, newReachables, currReachables, allReachableCount, stepsCount - 1)
 
 def solve21():
     f = open("input21.txt", "r")
@@ -2656,7 +2656,7 @@ def solve21():
         if sPos != -1:
             reachables = {(r, sPos)}
 
-    reachablesCount = getReachable(field, reachables, reachables, [reachables], 26501365)
+    reachablesCount = getReachable(field, reachables, reachables, [1], 26501365)
     print(reachablesCount)
 
 import sys, time
