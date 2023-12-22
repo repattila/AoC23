@@ -266,7 +266,15 @@ def findOptionsAlt(line, matchPos, checksums, checksumNum):
     currChecksumNum = checksumNum
     lineLen = len(line)
     checksumsLen = len(checksums)
+
+    requiredLength = 0
+    for c in range(checksumNum, checksumsLen):
+        requiredLength += len(checksums[c])
+
     while currMatchPos < lineLen:
+        if lineLen - currMatchPos < requiredLength:
+            return options
+
         currLineChar = line[currMatchPos]
 
         while currLineChar == '.':
@@ -290,6 +298,7 @@ def findOptionsAlt(line, matchPos, checksums, checksumNum):
                     break
                 else:
                     currMatchPos = newMatchPos
+                    requiredLength -= len(checksums[currChecksumNum])
                     currChecksumNum += 1
 
                     if currMatchPos == lineLen:
