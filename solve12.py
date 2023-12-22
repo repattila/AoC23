@@ -241,12 +241,124 @@ def solve12_alt():
 
     print(sum)
 
+def doMatch(line, matchPos, checksums, currChecksumNum):
+    currCheck = checksums[currChecksumNum]
+    currMatchPos = matchPos
+
+    isMatching = True
+    for checkChar in currCheck:
+        if len(line) <= currMatchPos:
+            isMatching = False
+            break
+
+        lineChar = line[currMatchPos]
+        if lineChar != '?' and lineChar != checkChar:
+            isMatching = False
+            break
+        else:
+            currMatchPos += 1
+
+    return isMatching, currMatchPos
+
+def findOptionsAlt(line, matchPos, checksums, checksumNum):
+    options = 0
+    currMatchPos = matchPos
+    currChecksumNum = checksumNum
+    while currMatchPos < len(line):
+        currLineChar = line[currMatchPos]
+
+        while currLineChar == '.':
+            currMatchPos += 1
+
+            if currMatchPos == len(line):
+                break
+            else:
+                currLineChar = line[currMatchPos]
+
+        if currMatchPos == len(line):
+            continue
+
+        if currLineChar == '#':
+            if len(checksums) <= currChecksumNum:
+                break
+            else:
+                isMatching, newMatchPos = doMatch(line, currMatchPos, checksums, currChecksumNum)
+
+                if not isMatching:
+                    break
+                else:
+                    currMatchPos = newMatchPos
+                    currChecksumNum += 1
+
+                    if currMatchPos == len(line):
+                        continue
+                    else:
+                        currLineChar = line[currMatchPos]
+
+        if currLineChar == '?':
+            # try matching current block
+            if currChecksumNum < len(checksums):
+                isMatching, newMatchPos = doMatch(line, currMatchPos, checksums, currChecksumNum)
+
+                if isMatching:
+                    options += findOptionsAlt(line, newMatchPos, checksums, currChecksumNum + 1)
+
+            # try .
+            currMatchPos += 1
+    else:
+        if currChecksumNum == len(checksums):
+            return options + 1
+        else:
+            return options
+
+    return options
+
+def solve12_alt1():
+    f = open("input12.txt", "r")
+    rawLines = f.readlines()
+
+    lines = []
+    checksums = []
+
+    for rawLine in rawLines:
+        splitLine = rawLine.strip().split(' ')
+        lines.append(splitLine[0])
+
+        checksum = []
+        checks = splitLine[1].split(',')
+        for c in range(len(checks)):
+            check = ''
+            for i in range(int(checks[c])):
+                check += '#'
+
+            if c != len(checks) - 1:
+                check += '.'
+
+            checksum.append(check)
+
+        checksums.append(checksum)
+
+    print(lines)
+    print(checksums)
+
+    sum = 0
+    for l in range(len(lines)):
+        currLine = lines[l]
+        currChecksums = checksums[l]
+
+        options = findOptionsAlt(currLine, 0, currChecksums, 0)
+        print(options)
+
+        sum += options
+
+    print(sum)
+
 def solve12_2():
     f = open("input12.txt", "r")
     rawLines = f.readlines()
 
     lines = []
-    checkSums = []
+    checksums = []
 
     for rawLine in rawLines:
         splitRawLine = rawLine.strip().split(' ')
@@ -256,34 +368,35 @@ def solve12_2():
             line += '?' + splitRawLine[0]
         lines.append(line)
 
-        checkSum = [int(c) for c in splitRawLine[1].split(',')]
-        unfoldedCheckSum = []
+        checksum = [int(c) for c in splitRawLine[1].split(',')]
+        unfoldedChecksum = []
         for _ in range(5):
-            unfoldedCheckSum += checkSum
-        checkSums.append(unfoldedCheckSum)
+            unfoldedChecksum += checksum
+
+        checksum = []
+        for c in range(len(unfoldedChecksum)):
+            check = ''
+            for i in range(unfoldedChecksum[c]):
+                check += '#'
+
+            if c != len(unfoldedChecksum) - 1:
+                check += '.'
+
+            checksum.append(check)
+
+        checksums.append(checksum)
 
     print(lines)
-    print(checkSums)
+    print(checksums)
 
     sum = 0
-
     for l in range(len(lines)):
         currLine = lines[l]
-        currCheckSum = checkSums[l]
+        currChecksums = checksums[l]
 
-        pattern = "^[\\.\\?]*"
-        for c in range(len(currCheckSum) - 1):
-            pattern += '[#\\?]{' + str(currCheckSum[c]) + '}[\\.\\?]+'
+        options = findOptionsAlt(currLine, 0, currChecksums, 0)
+        print(options)
 
-        pattern += '[#\\?]{' + str(currCheckSum[-1]) + '}[\\.\\?]*$'
-
-        print(pattern)
-
-        p = re.compile(pattern)
-
-        optionsCount = findOptions(currLine, "", 0, p, currCheckSum, 0, 0)
-        print(optionsCount)
-
-        sum += optionsCount
+        sum += options
 
     print(sum)
