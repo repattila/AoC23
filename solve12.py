@@ -406,7 +406,7 @@ def solve12_2():
 
     futures = []
 
-    with concurrent.futures.ThreadPoolExecutor() as executor:
+    with concurrent.futures.ProcessPoolExecutor() as executor:
         for l in range(len(lines)):
             currLine = lines[l]
             currChecksums = checksums[l]
