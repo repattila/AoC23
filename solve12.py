@@ -241,13 +241,13 @@ def solve12_alt():
 
     print(sum)
 
-def doMatch(line, matchPos, checksums, currChecksumNum):
+def doMatch(line, lineLen, matchPos, checksums, currChecksumNum):
     currCheck = checksums[currChecksumNum]
     currMatchPos = matchPos
 
     isMatching = True
     for checkChar in currCheck:
-        if len(line) <= currMatchPos:
+        if lineLen <= currMatchPos:
             isMatching = False
             break
 
@@ -264,25 +264,27 @@ def findOptionsAlt(line, matchPos, checksums, checksumNum):
     options = 0
     currMatchPos = matchPos
     currChecksumNum = checksumNum
-    while currMatchPos < len(line):
+    lineLen = len(line)
+    checksumsLen = len(checksums)
+    while currMatchPos < lineLen:
         currLineChar = line[currMatchPos]
 
         while currLineChar == '.':
             currMatchPos += 1
 
-            if currMatchPos == len(line):
+            if currMatchPos == lineLen:
                 break
             else:
                 currLineChar = line[currMatchPos]
 
-        if currMatchPos == len(line):
+        if currMatchPos == lineLen:
             continue
 
         if currLineChar == '#':
-            if len(checksums) <= currChecksumNum:
+            if checksumsLen <= currChecksumNum:
                 break
             else:
-                isMatching, newMatchPos = doMatch(line, currMatchPos, checksums, currChecksumNum)
+                isMatching, newMatchPos = doMatch(line, lineLen, currMatchPos, checksums, currChecksumNum)
 
                 if not isMatching:
                     break
@@ -290,15 +292,15 @@ def findOptionsAlt(line, matchPos, checksums, checksumNum):
                     currMatchPos = newMatchPos
                     currChecksumNum += 1
 
-                    if currMatchPos == len(line):
+                    if currMatchPos == lineLen:
                         continue
                     else:
                         currLineChar = line[currMatchPos]
 
         if currLineChar == '?':
             # try matching current block
-            if currChecksumNum < len(checksums):
-                isMatching, newMatchPos = doMatch(line, currMatchPos, checksums, currChecksumNum)
+            if currChecksumNum < checksumsLen:
+                isMatching, newMatchPos = doMatch(line, lineLen, currMatchPos, checksums, currChecksumNum)
 
                 if isMatching:
                     options += findOptionsAlt(line, newMatchPos, checksums, currChecksumNum + 1)
@@ -306,7 +308,7 @@ def findOptionsAlt(line, matchPos, checksums, checksumNum):
             # try .
             currMatchPos += 1
     else:
-        if currChecksumNum == len(checksums):
+        if currChecksumNum == checksumsLen:
             return options + 1
         else:
             return options
@@ -353,6 +355,8 @@ def solve12_alt1():
 
     print(sum)
 
+import concurrent.futures
+
 def solve12_2():
     f = open("input12.txt", "r")
     rawLines = f.readlines()
@@ -390,13 +394,21 @@ def solve12_2():
     print(checksums)
 
     sum = 0
-    for l in range(len(lines)):
-        currLine = lines[l]
-        currChecksums = checksums[l]
 
-        options = findOptionsAlt(currLine, 0, currChecksums, 0)
-        print(options)
+    futures = []
 
-        sum += options
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        for l in range(len(lines)):
+            currLine = lines[l]
+            currChecksums = checksums[l]
+
+            futures.append(executor.submit(findOptionsAlt, currLine, 0, currChecksums, 0))
+
+            #options = findOptionsAlt(currLine, 0, currChecksums, 0)
+
+        for f in futures:
+            res = f.result()
+            print(res)
+            sum += res
 
     print(sum)
