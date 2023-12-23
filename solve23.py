@@ -1,54 +1,94 @@
 
-def followRoute(field, row, col, visited, steps):
-    currRow = row
-    currCol = col
+class Path:
+    def __init__(self, row, col, visited, steps):
+        self.row = row
+        self.col = col
+        self.visited = set(visited)
+        self.steps = steps
 
-    if currRow != len(field) - 1:
-        # Up
-        nextRow = currRow - 1
-        nextCol = currCol
+    def makeStep(self, row, col):
+        self.row = row
+        self.col = col
+        self.visited.add((row, col))
+        self.steps += 1
 
-        if 0 <= nextRow \
-        and (nextRow, nextCol) not in visited \
-        and field[nextRow][nextCol] not in ['#', 'v']:
-            newVisited = set(visited)
-            newVisited.add((nextRow, nextCol))
-            followRoute(field, nextRow, nextCol, newVisited, steps + 1)
+import collections
 
-        # Down
-        nextRow = currRow + 1
-        nextCol = currCol
+def followRoute(field, paths: collections.deque, endSteps):
+    while paths:
+        print(len(paths))
+        currPath = paths.popleft()
 
-        if nextRow < len(field) \
-        and (nextRow, nextCol) not in visited \
-        and field[nextRow][nextCol] not in ['#', '^']:
-            newVisited = set(visited)
-            newVisited.add((nextRow, nextCol))
-            followRoute(field, nextRow, nextCol, newVisited, steps + 1)
+        while currPath.row != len(field) - 1:
+            hasFirstRouteOption = False
 
-        # Right
-        nextRow = currRow
-        nextCol = currCol + 1
+            currRow = currPath.row
+            currCol = currPath.col
+            currSteps = currPath.steps
 
-        if nextCol < len(field[row]) \
-        and (nextRow, nextCol) not in visited \
-        and field[nextRow][nextCol] not in ['#', '<']:
-            newVisited = set(visited)
-            newVisited.add((nextRow, nextCol))
-            followRoute(field, nextRow, nextCol, newVisited, steps + 1)
+            # Up
+            nextRow = currRow - 1
+            nextCol = currCol
 
-        # Left
-        nextRow = currRow
-        nextCol = currCol - 1
+            if 0 <= nextRow \
+            and (nextRow, nextCol) not in currPath.visited \
+            and field[nextRow][nextCol] != '#':
+            #and field[nextRow][nextCol] not in ['#', 'v']:
+                currPath.makeStep(nextRow, nextCol)
+                hasFirstRouteOption = True
 
-        if 0 <= nextCol \
-        and (nextRow, nextCol) not in visited \
-        and field[nextRow][nextCol] not in ['#', '>']:
-            newVisited = set(visited)
-            newVisited.add((nextRow, nextCol))
-            followRoute(field, nextRow, nextCol, newVisited, steps + 1)
-    else:
-        print(steps)
+            # Down
+            nextRow = currRow + 1
+            nextCol = currCol
+
+            if nextRow < len(field) \
+            and (nextRow, nextCol) not in currPath.visited \
+            and field[nextRow][nextCol] != '#':
+            #and field[nextRow][nextCol] not in ['#', '^']:
+                if not hasFirstRouteOption:
+                    currPath.makeStep(nextRow, nextCol)
+                    hasFirstRouteOption = True
+                else:
+                    newPath = Path(currRow, currCol, currPath.visited, currSteps)
+                    newPath.makeStep(nextRow, nextCol)
+                    paths.append(newPath)
+
+            # Right
+            nextRow = currRow
+            nextCol = currCol + 1
+
+            if nextCol < len(field[nextRow]) \
+            and (nextRow, nextCol) not in currPath.visited \
+            and field[nextRow][nextCol] != '#':
+            #and field[nextRow][nextCol] not in ['#', '<']:
+                if not hasFirstRouteOption:
+                    currPath.makeStep(nextRow, nextCol)
+                    hasFirstRouteOption = True
+                else:
+                    newPath = Path(currRow, currCol, currPath.visited, currSteps)
+                    newPath.makeStep(nextRow, nextCol)
+                    paths.append(newPath)
+
+            # Left
+            nextRow = currRow
+            nextCol = currCol - 1
+
+            if 0 <= nextCol \
+            and (nextRow, nextCol) not in currPath.visited \
+            and field[nextRow][nextCol] != '#':
+            #and field[nextRow][nextCol] not in ['#', '>']:
+                if not hasFirstRouteOption:
+                    currPath.makeStep(nextRow, nextCol)
+                    hasFirstRouteOption = True
+                else:
+                    newPath = Path(currRow, currCol, currPath.visited, currSteps)
+                    newPath.makeStep(nextRow, nextCol)
+                    paths.append(newPath)
+
+            if not hasFirstRouteOption:
+                break
+        else:
+            endSteps.append(currPath.steps)
 
 field = []
 def solve23():
@@ -58,5 +98,10 @@ def solve23():
     for rawLine in rawLines:
         field.append(rawLine.strip())
 
-    followRoute(field, 0, 1, set(), 0)
+    endSteps = []
+    paths = collections.deque()
+    paths.append(Path(0, 1, set(), 0))
+    followRoute(field, paths, endSteps)
+
+    print(max(endSteps))
 
