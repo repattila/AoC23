@@ -165,6 +165,43 @@ def solve17():
     #     print(route)
     print(cheapestRoute[-1][-1])
 
+class PosInfo:
+    def __init__(self, row, col):
+        self.row = row
+        self.col = col
+
+        # [up, down, right, left]
+        self.minHL = [0, 0, 0, 0]
+        self.stepsInDirs = [0, 0, 0, 0]
+        self.done = [True, True, True, True]
+
+    def __str__(self):
+        return str(self.minHL) + ' ' + str(self.stepsInDirs) + ' ' + str(self.done)
+
+    def updateHL(self, dirCode, stepsInDir, heatloss):
+        if self.minHL[dirCode] == 0 or heatloss < self.minHL[dirCode]:
+            self.minHL[dirCode] = heatloss
+            self.stepsInDirs[dirCode] = stepsInDir
+            self.done[dirCode] = False
+
+    def getminHL(self):
+        minHL = 0
+        dir = 0
+        stepsInDir = 0
+
+        for i in range(4):
+            if not self.done[i]:
+                if minHL == 0 or self.minHL[i] < minHL:
+                    minHL = self.minHL[i]
+                    dir = i
+                    stepsInDir = self.stepsInDirs[i]
+
+        if minHL == 0:
+            return None
+        else:
+            return minHL, dir, stepsInDir
+
+
 def solve17_alt():
     f = open("example17.txt", "r")
     rawLines = f.readlines()
@@ -176,24 +213,27 @@ def solve17_alt():
     currRow = 0
     currCol = 0
 
+    currDir = 2
+    currStepsInDir = 0
+
     posDict = {}
-    cheapestRouteEnds = []
+
     for r in range(len(rawLines)):
         line = rawLines[r].strip()
         for c in range(len(line)):
             # row, col, minHeatLoss, lastDir, stepsInDir, visited, isRouteEnd
-            posInfo = [r, c, 0, 'r', 0, False, False]
+            posInfo = PosInfo(r, c)
             posDict[(r, c)] = posInfo
 
     print(posDict)
 
     while True:
         currPosInfo = posDict[(currRow, currCol)]
-        currCost = currPosInfo[2]
+        currHL = currPosInfo.minHL[currDir]
 
         # Update current neighbours
 
-        if currPosInfo[3] == 'd':
+        if currDir == 1:
             # Right
             nextRow = currRow
             nextCol = currCol + 1
@@ -201,17 +241,8 @@ def solve17_alt():
             if nextCol <= lastCol:
                 nextHeatLoss = field[nextRow][nextCol]
                 nextPosInfo = posDict[(nextRow, nextCol)]
-                nextCost = nextPosInfo[2]
 
-                if nextCost == 0 or currCost + nextHeatLoss <= nextCost:
-                    nextPosInfo[2] = currCost + nextHeatLoss
-                    nextPosInfo[3] = 'r'
-                    nextPosInfo[4] = 1
-                    nextPosInfo[5] = False
-
-                    if not nextPosInfo[6]:
-                        nextPosInfo[6] = True
-                        cheapestRouteEnds.append(nextPosInfo)
+                nextPosInfo.updateHL(2, 1, currHL + nextHeatLoss)
 
             # Left
             nextRow = currRow
@@ -220,19 +251,10 @@ def solve17_alt():
             if 0 <= nextCol:
                 nextHeatLoss = field[nextRow][nextCol]
                 nextPosInfo = posDict[(nextRow, nextCol)]
-                nextCost = nextPosInfo[2]
 
-                if nextCost == 0 or currCost + nextHeatLoss <= nextCost:
-                    nextPosInfo[2] = currCost + nextHeatLoss
-                    nextPosInfo[3] = 'l'
-                    nextPosInfo[4] = 1
-                    nextPosInfo[5] = False
+                nextPosInfo.updateHL(3, 1, currHL + nextHeatLoss)
 
-                    if not nextPosInfo[6]:
-                        nextPosInfo[6] = True
-                        cheapestRouteEnds.append(nextPosInfo)
-
-            if currPosInfo[4] != 3:
+            if currStepsInDir != 3:
                 # Down
                 nextRow = currRow + 1
                 nextCol = currCol
@@ -240,19 +262,10 @@ def solve17_alt():
                 if nextRow <= lastRow:
                     nextHeatLoss = field[nextRow][nextCol]
                     nextPosInfo = posDict[(nextRow, nextCol)]
-                    nextCost = nextPosInfo[2]
 
-                    if nextCost == 0 or currCost + nextHeatLoss <= nextCost:
-                        nextPosInfo[2] = currCost + nextHeatLoss
-                        nextPosInfo[3] = 'd'
-                        nextPosInfo[4] = currPosInfo[4] + 1
-                        nextPosInfo[5] = False
+                    nextPosInfo.updateHL(1, currStepsInDir + 1, currHL + nextHeatLoss)
 
-                        if not nextPosInfo[6]:
-                            nextPosInfo[6] = True
-                            cheapestRouteEnds.append(nextPosInfo)
-
-        elif currPosInfo[3] == 'u':
+        elif currDir == 0:
             # Right
             nextRow = currRow
             nextCol = currCol + 1
@@ -260,17 +273,8 @@ def solve17_alt():
             if nextCol <= lastCol:
                 nextHeatLoss = field[nextRow][nextCol]
                 nextPosInfo = posDict[(nextRow, nextCol)]
-                nextCost = nextPosInfo[2]
 
-                if nextCost == 0 or currCost + nextHeatLoss <= nextCost:
-                    nextPosInfo[2] = currCost + nextHeatLoss
-                    nextPosInfo[3] = 'r'
-                    nextPosInfo[4] = 1
-                    nextPosInfo[5] = False
-
-                    if not nextPosInfo[6]:
-                        nextPosInfo[6] = True
-                        cheapestRouteEnds.append(nextPosInfo)
+                nextPosInfo.updateHL(2, 1, currHL + nextHeatLoss)
 
             # Left
             nextRow = currRow
@@ -279,19 +283,10 @@ def solve17_alt():
             if 0 <= nextCol:
                 nextHeatLoss = field[nextRow][nextCol]
                 nextPosInfo = posDict[(nextRow, nextCol)]
-                nextCost = nextPosInfo[2]
 
-                if nextCost == 0 or currCost + nextHeatLoss <= nextCost:
-                    nextPosInfo[2] = currCost + nextHeatLoss
-                    nextPosInfo[3] = 'l'
-                    nextPosInfo[4] = 1
-                    nextPosInfo[5] = False
+                nextPosInfo.updateHL(3, 1, currHL + nextHeatLoss)
 
-                    if not nextPosInfo[6]:
-                        nextPosInfo[6] = True
-                        cheapestRouteEnds.append(nextPosInfo)
-
-            if currPosInfo[4] != 3:
+            if currStepsInDir != 3:
                 # Up
                 nextRow = currRow - 1
                 nextCol = currCol
@@ -299,19 +294,10 @@ def solve17_alt():
                 if 0 <= nextRow:
                     nextHeatLoss = field[nextRow][nextCol]
                     nextPosInfo = posDict[(nextRow, nextCol)]
-                    nextCost = nextPosInfo[2]
 
-                    if nextCost == 0 or currCost + nextHeatLoss <= nextCost:
-                        nextPosInfo[2] = currCost + nextHeatLoss
-                        nextPosInfo[3] = 'u'
-                        nextPosInfo[4] = currPosInfo[4] + 1
-                        nextPosInfo[5] = False
+                    nextPosInfo.updateHL(0, currStepsInDir + 1, currHL + nextHeatLoss)
 
-                        if not nextPosInfo[6]:
-                            nextPosInfo[6] = True
-                            cheapestRouteEnds.append(nextPosInfo)
-
-        elif currPosInfo[3] == 'r':
+        elif currDir == 2:
             # Up
             nextRow = currRow - 1
             nextCol = currCol
@@ -319,17 +305,8 @@ def solve17_alt():
             if 0 <= nextRow:
                 nextHeatLoss = field[nextRow][nextCol]
                 nextPosInfo = posDict[(nextRow, nextCol)]
-                nextCost = nextPosInfo[2]
 
-                if nextCost == 0 or currCost + nextHeatLoss <= nextCost:
-                    nextPosInfo[2] = currCost + nextHeatLoss
-                    nextPosInfo[3] = 'u'
-                    nextPosInfo[4] = 1
-                    nextPosInfo[5] = False
-
-                    if not nextPosInfo[6]:
-                        nextPosInfo[6] = True
-                        cheapestRouteEnds.append(nextPosInfo)
+                nextPosInfo.updateHL(0, 1, currHL + nextHeatLoss)
 
             # Down
             nextRow = currRow + 1
@@ -338,19 +315,10 @@ def solve17_alt():
             if nextRow <= lastRow:
                 nextHeatLoss = field[nextRow][nextCol]
                 nextPosInfo = posDict[(nextRow, nextCol)]
-                nextCost = nextPosInfo[2]
 
-                if nextCost == 0 or currCost + nextHeatLoss <= nextCost:
-                    nextPosInfo[2] = currCost + nextHeatLoss
-                    nextPosInfo[3] = 'd'
-                    nextPosInfo[4] = 1
-                    nextPosInfo[5] = False
+                nextPosInfo.updateHL(1, 1, currHL + nextHeatLoss)
 
-                    if not nextPosInfo[6]:
-                        nextPosInfo[6] = True
-                        cheapestRouteEnds.append(nextPosInfo)
-
-            if currPosInfo[4] != 3:
+            if currStepsInDir != 3:
                 # Right
                 nextRow = currRow
                 nextCol = currCol + 1
@@ -358,19 +326,10 @@ def solve17_alt():
                 if nextCol <= lastCol:
                     nextHeatLoss = field[nextRow][nextCol]
                     nextPosInfo = posDict[(nextRow, nextCol)]
-                    nextCost = nextPosInfo[2]
 
-                    if nextCost == 0 or currCost + nextHeatLoss <= nextCost:
-                        nextPosInfo[2] = currCost + nextHeatLoss
-                        nextPosInfo[3] = 'r'
-                        nextPosInfo[4] = currPosInfo[4] + 1
-                        nextPosInfo[5] = False
+                    nextPosInfo.updateHL(2, currStepsInDir + 1, currHL + nextHeatLoss)
 
-                        if not nextPosInfo[6]:
-                            nextPosInfo[6] = True
-                            cheapestRouteEnds.append(nextPosInfo)
-
-            elif currPosInfo[3] == 'l':
+            elif currDir == 3:
                 # Up
                 nextRow = currRow - 1
                 nextCol = currCol
@@ -378,17 +337,8 @@ def solve17_alt():
                 if 0 <= nextRow:
                     nextHeatLoss = field[nextRow][nextCol]
                     nextPosInfo = posDict[(nextRow, nextCol)]
-                    nextCost = nextPosInfo[2]
 
-                    if nextCost == 0 or currCost + nextHeatLoss <= nextCost:
-                        nextPosInfo[2] = currCost + nextHeatLoss
-                        nextPosInfo[3] = 'u'
-                        nextPosInfo[4] = 1
-                        nextPosInfo[5] = False
-
-                        if not nextPosInfo[6]:
-                            nextPosInfo[6] = True
-                            cheapestRouteEnds.append(nextPosInfo)
+                    nextPosInfo.updateHL(0, 1, currHL + nextHeatLoss)
 
                 # Down
                 nextRow = currRow + 1
@@ -397,19 +347,10 @@ def solve17_alt():
                 if nextRow <= lastRow:
                     nextHeatLoss = field[nextRow][nextCol]
                     nextPosInfo = posDict[(nextRow, nextCol)]
-                    nextCost = nextPosInfo[2]
 
-                    if nextCost == 0 or currCost + nextHeatLoss <= nextCost:
-                        nextPosInfo[2] = currCost + nextHeatLoss
-                        nextPosInfo[3] = 'd'
-                        nextPosInfo[4] = 1
-                        nextPosInfo[5] = False
+                    nextPosInfo.updateHL(1, 1, currHL + nextHeatLoss)
 
-                        if not nextPosInfo[6]:
-                            nextPosInfo[6] = True
-                            cheapestRouteEnds.append(nextPosInfo)
-
-                if currPosInfo[4] != 3:
+                if currStepsInDir != 3:
                     # Left
                     nextRow = currRow
                     nextCol = currCol - 1
@@ -417,34 +358,31 @@ def solve17_alt():
                     if 0 <= nextCol:
                         nextHeatLoss = field[nextRow][nextCol]
                         nextPosInfo = posDict[(nextRow, nextCol)]
-                        nextCost = nextPosInfo[2]
 
-                        if nextCost == 0 or currCost + nextHeatLoss <= nextCost:
-                            nextPosInfo[2] = currCost + nextHeatLoss
-                            nextPosInfo[3] = 'l'
-                            nextPosInfo[4] = currPosInfo[4] + 1
-                            nextPosInfo[5] = False
-
-                            if not nextPosInfo[6]:
-                                nextPosInfo[6] = True
-                                cheapestRouteEnds.append(nextPosInfo)
+                        nextPosInfo.updateHL(3, currStepsInDir + 1, currHL + nextHeatLoss)
 
         #Find not visited element with smallest heatloss
         nextPosInfo = None
+        nextPosMinHLInfo = None
         for posInfo in posDict.values():
-            if not posInfo[5] and posInfo[2] != 0:
+            minHLInfo = posInfo.getminHL()
+            if minHLInfo is not None:
                 if nextPosInfo is None:
                     nextPosInfo = posInfo
+                    nextPosMinHLInfo = minHLInfo
                 else:
-                    if posInfo[2] < nextPosInfo[2]:
+                    if minHLInfo[0] < nextPosMinHLInfo[0]:
                         nextPosInfo = posInfo
+                        nextPosMinHLInfo = minHLInfo
 
         # Go to next pos
         if nextPosInfo is None:
             break
         else:
-            currRow = nextPosInfo[0]
-            currCol = nextPosInfo[1]
-            nextPosInfo[5] = True
+            currRow = nextPosInfo.row
+            currCol = nextPosInfo.col
+            currDir = nextPosMinHLInfo[1]
+            currStepsInDir = nextPosMinHLInfo[2]
+            nextPosInfo.done[currDir] = True
 
     print(posDict[(lastRow, lastCol)])
