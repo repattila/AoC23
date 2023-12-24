@@ -29,7 +29,7 @@ class HOnX:
 
     def collide(self, other):
         if type(other) is HOnX:
-            collision = self.x == other.x and (
+            collision = self.z < other.z and self.x == other.x and (
                 self.startY <= other.startY <= self.endY or self.startY <= other.endY <= self.endY
             )
 
@@ -38,7 +38,7 @@ class HOnX:
 
             return collision
         elif type(other) is HOnY:
-            collision = self.startY <= other.y <= self.endY and \
+            collision = self.z < other.z and self.startY <= other.y <= self.endY and \
                 other.startX <= self.x <= other.endX
 
             if collision:
@@ -46,7 +46,7 @@ class HOnX:
 
             return collision
         elif type(other) is Vertical:
-            collision = self.startY <= other.y <= self.endY and \
+            collision = self.z < other.startZ and self.startY <= other.y <= self.endY and \
                 self.x == other.x
 
             if collision:
@@ -84,7 +84,7 @@ class HOnY:
 
     def collide(self, other):
         if type(other) is HOnX:
-            collision = self.startX <= other.x <= self.endX and \
+            collision = self.z < other.z and self.startX <= other.x <= self.endX and \
                         other.startY <= self.y <= other.endY
 
             if collision:
@@ -92,7 +92,7 @@ class HOnY:
 
             return collision
         elif type(other) is HOnY:
-            collision = self.y == other.y and (
+            collision = self.z < other.z and self.y == other.y and (
                     self.startX <= other.startX <= self.endX or self.startX <= other.endX <= self.endX
             )
 
@@ -101,7 +101,7 @@ class HOnY:
 
             return collision
         elif type(other) is Vertical:
-            collision = self.startX <= other.x <= self.endX and \
+            collision = self.z < other.startZ and self.startX <= other.x <= self.endX and \
                         self.y == other.y
 
             if collision:
@@ -126,7 +126,7 @@ class Vertical:
         elif type(other) is HOnY:
             return self.endZ < other.z
         elif type(other) is Vertical:
-            return self.endZ < other.startZ
+            return self.endZ < other.startZ or self.endZ < other.endZ
 
     def setZ(self, z):
         height = self.endZ - self.startZ
@@ -141,7 +141,7 @@ class Vertical:
 
     def collide(self, other):
         if type(other) is HOnX:
-            collision = other.startY <= self.y <= other.endY and \
+            collision = self.endZ < other.z and other.startY <= self.y <= other.endY and \
                         self.x == other.x
 
             if collision:
@@ -149,7 +149,7 @@ class Vertical:
 
             return collision
         elif type(other) is HOnY:
-            collision = other.startX <= self.x <= other.endX and \
+            collision = self.endZ < other.z and other.startX <= self.x <= other.endX and \
                         self.y == other.y
 
             if collision:
@@ -157,7 +157,7 @@ class Vertical:
 
             return collision
         elif type(other) is Vertical:
-            collision = other.x == self.x and self.y == other.y
+            collision = self.endZ < other.startZ and other.x == self.x and self.y == other.y
 
             if collision:
                 other.setZ(self.endZ + 1)
@@ -232,5 +232,6 @@ def solve22():
             notRemovable.add(supporters[0])
 
     print(notRemovable)
+    print(len(bricks))
     print(len(bricks) - len(notRemovable))
 
