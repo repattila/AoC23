@@ -149,7 +149,7 @@ def followRoute(field, cheapestRoute, currRow, currCol, dir, stepsInDir, heatLos
             followRoute(field, cheapestRoute, nextRow, nextCol, nextDir, nextStepsInDir, nextHeatLoss)
 
 def solve17():
-    f = open("example17.txt", "r")
+    f = open("examples/example17.txt", "r")
     rawLines = f.readlines()
 
     field = [[int(ch) for ch in line.strip()] for line in rawLines]
@@ -203,7 +203,7 @@ class PosInfo:
 
 
 def solve17_alt():
-    f = open("example17.txt", "r")
+    f = open("examples/example17.txt", "r")
     rawLines = f.readlines()
 
     field = [[int(ch) for ch in line.strip()] for line in rawLines]

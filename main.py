@@ -2031,6 +2031,7 @@ def solve19_2():
 import sys, time
 from solve24 import *
 from solve23 import *
+from solve22 import *
 from solve21 import *
 from solve20 import *
 from solve17 import *
@@ -2041,7 +2042,7 @@ if __name__ == '__main__':
     sys.setrecursionlimit(200000)
     before = time.perf_counter()
 
-    solve24()
+    solve22()
 
     after = time.perf_counter()
 

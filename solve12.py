@@ -76,7 +76,7 @@ def getArrangements(allFields, numOfActive):
     return [[1] + res for res in getArrangements(allFields - 1, numOfActive - 1)] + [[0] + res for res in getArrangements(allFields - 1, numOfActive)]
 
 def solve12():
-    f = open("example12.txt", "r")
+    f = open("examples/example12.txt", "r")
     rawLines = f.readlines()
 
     lines = []

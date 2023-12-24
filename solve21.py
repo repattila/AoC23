@@ -1,5 +1,5 @@
 def solve21():
-    f = open("example21.txt", "r")
+    f = open("examples/example21.txt", "r")
     rawLines = f.readlines()
 
     field = []
