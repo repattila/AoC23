@@ -90,10 +90,11 @@ def followRoute(field, paths: collections.deque, endSteps):
         else:
             endSteps.append(currPath.steps)
 
-field = []
 def solve23():
     f = open("input23.txt", "r")
     rawLines = f.readlines()
+
+    field = []
 
     for rawLine in rawLines:
         field.append(rawLine.strip())
